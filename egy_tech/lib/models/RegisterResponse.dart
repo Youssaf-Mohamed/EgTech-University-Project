@@ -1,18 +1,18 @@
 import 'package:my_app/objects/User.dart';
 
-class LoginResponse {
+class RegisterResponse {
   final bool status;
   final User user;
   final String token;
 
-  LoginResponse({
+  RegisterResponse({
     required this.status,
     required this.user,
     required this.token,
   });
 
-  factory LoginResponse.fromJson(Map<String, dynamic> json) {
-    return LoginResponse(
+  factory RegisterResponse.fromJson(Map<String, dynamic> json) {
+    return RegisterResponse(
       status: json['status'],
       user: User.fromJson(json['data']['user']),
       token: json['data']['token'],

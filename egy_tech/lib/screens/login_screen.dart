@@ -42,6 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
       LoginResponse response = await authRepository.login(email, password);
 
       if (response.status) {
+        Navigator.pushNamed(context, '/main');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login successful')),
         );
@@ -51,6 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
+      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error has occurred: $e')),
       );
@@ -72,8 +74,8 @@ class _LoginScreenState extends State<LoginScreen> {
             Text(
               "Login",
               style: GoogleFonts.poppins(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 10),
@@ -140,7 +142,9 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const Text("Don't have an account?"),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/signup');
+                  },
                   child: const Text("Sign Up", style: TextStyle(color: Colors.red)),
                 ),
               ],

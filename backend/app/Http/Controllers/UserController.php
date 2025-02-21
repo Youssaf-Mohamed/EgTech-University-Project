@@ -13,7 +13,13 @@ class UserController extends Controller
     // Get authenticated user's profile (using Resource)
     public function show(Request $request)
     {
-        return new UserResource($request->user());
+        return response()->json(
+            [
+                'statusCode' => 200,
+                'status' => true,
+                'data' => new UserResource($request->user())
+            ]
+        );
     }
 
     // Update profile
