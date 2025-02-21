@@ -163,17 +163,17 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 IconButton(
                   onPressed: () {},
-                  icon: Image.asset('assets/google.png', width: 30),
+                  icon: Image.asset('assets/icons/google.png', width: 30),
                 ),
                 const SizedBox(width: 20),
                 IconButton(
                   onPressed: () {},
-                  icon: Image.asset('assets/apple-icon-4.png', width: 40),
+                  icon: Image.asset('assets/icons/apple-icon-4.png', width: 40),
                 ),
                 const SizedBox(width: 20),
                 IconButton(
                   onPressed: () {},
-                  icon: Image.asset('assets/facebook-icon.jpg', width: 30),
+                  icon: Image.asset('assets/icons/facebook-icon.jpg', width: 30),
                 ),
               ],
             ),
