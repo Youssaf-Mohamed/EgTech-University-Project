@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscureText = true;
+  bool isChecked = false;
 
   void _login() async {
     String email = _emailController.text;
@@ -88,11 +89,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      "Enter the email address.",
+                      "Enter the email address you’d like to use to sign in to HandmadeHive. ",
                       style:
                           GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 35),
                     TextField(
                       controller: _emailController,
                       decoration: const InputDecoration(
@@ -120,15 +121,37 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          "Forgot Password?",
-                          style: TextStyle(color: Colors.red),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: isChecked,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  isChecked = value ?? false;
+                                });
+                              },
+                              activeColor:
+                                  Colors.green, 
+                              checkColor:
+                                  Colors.white, 
+                            ),
+                            Text(
+                              "Remember me",
+                              style: TextStyle(color: Colors.grey[700]),
+                            ),
+                          ],
                         ),
-                      ),
+                        TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            "Forgot Password?",
+                            style: TextStyle(color: Colors.red[700]),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton(
