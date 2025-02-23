@@ -74,7 +74,7 @@ flutter:
     - assets/
 
 flutter_native_splash:
-  color: "#42a5f5"  # Replace with your splash screen color
+  color: "#FFFFFF"  # Replace with your splash screen color
   image: assets/icons/logo.png  # Replace with your splash image path
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

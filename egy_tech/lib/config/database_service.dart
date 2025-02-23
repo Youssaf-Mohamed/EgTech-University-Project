@@ -41,7 +41,6 @@ class DatabaseService {
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE Tokens (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
         token TEXT NOT NULL
       )
     ''');
@@ -58,15 +57,8 @@ class DatabaseService {
 
   Future<String?> getToken() async {
     final db = await database;
-    List<Map<String, dynamic>> results = await db.query(
-      'Tokens',
-      columns: ['token'],
-      limit: 1,
-    );
-    if (results.isNotEmpty) {
-      return results.first['token'] as String?;
-    }
-    return null;
+    List<Map<String, dynamic>> results = await db.query('Tokens', limit: 1);
+    return results.isNotEmpty ? results.first['token'] as String? : null;
   }
 
   Future<void> deleteToken() async {

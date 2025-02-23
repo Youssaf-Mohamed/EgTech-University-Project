@@ -25,6 +25,8 @@ class AuthService {
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final loginResponse = LoginResponse.fromJson(jsonDecode(response.body));
+        print(loginResponse.token);
+        await _databaseService.deleteToken(); // Delete existing token
         await _databaseService.saveToken(loginResponse.token); // Save token
         return loginResponse;
       } else {
