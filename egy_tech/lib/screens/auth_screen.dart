@@ -44,9 +44,6 @@ class _UserScreenState extends State<UserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('User Profile'),
-      ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _error != null

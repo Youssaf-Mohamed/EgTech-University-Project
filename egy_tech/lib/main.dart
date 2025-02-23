@@ -1,21 +1,21 @@
-import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:my_app/screens/auth_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:my_app/screens/auth_screen.dart';
+
 import 'package:provider/provider.dart';
 import 'repositories/auth_repository.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
-import 'screens/walkthrough.dart';
-// import 'screens/user_screen.dart';
+import 'screens/walkthrough.dart'; // Import the updated walkthrough file
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Check walkthrough status
   final prefs = await SharedPreferences.getInstance();
-  final bool walkthroughCompleted = false; // Debugging: Always show walkthrough
-
+  // final bool walkthroughCompleted = prefs.getBool('walkthroughCompleted') ?? false;
+  final bool walkthroughCompleted = false; // for debugging
   runApp(
     MultiProvider(
       providers: [
@@ -39,33 +39,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: SplashScreen(walkthroughCompleted: walkthroughCompleted),
+      initialRoute: walkthroughCompleted ? '/login' : '/walkthrough',
       routes: {
-        '/walkthrough': (context) => const Walkthrough(),
-        '/signup': (context) => ScreenWithAppBar(child: RegisterScreen()),
-        '/main': (context) => ScreenWithAppBar(child: UserScreen()),
+        '/walkthrough': (context) => const Walkthrough(), // Single wough route
+        '/login': (context) => LoginScreen(),
+        '/signup': (context) =>  RegisterScreen(),
+        '/': (context) => ScreenWithAppBar(child: UserScreen()),
       },
-    );
-  }
-}
-
-class SplashScreen extends StatelessWidget {
-  final bool walkthroughCompleted;
-
-  const SplashScreen({super.key, required this.walkthroughCompleted});
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSplashScreen(
-      splash: Container(
-        height: double.infinity,
-        width: double.infinity,
-          color: Colors.white,
-        child: Image.asset("assets/icons/logo.png", width: 500,),
-      ),
-      nextScreen: walkthroughCompleted ? LoginScreen() : Walkthrough(),
-      splashTransition: SplashTransition.fadeTransition,
-      duration: 2000,
     );
   }
 }

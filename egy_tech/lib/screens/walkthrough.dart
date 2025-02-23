@@ -41,9 +41,8 @@ class _WalkthroughState extends State<Walkthrough> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => ScreenWithAppBar(
-          child: LoginScreen(),
-        ),
+        builder: (context) => LoginScreen(),
+
       ),
       (Route<dynamic> route) => false,
     );
