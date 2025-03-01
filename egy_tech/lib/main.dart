@@ -1,6 +1,7 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:flutter/material.dart';
+import 'package:my_app/screens/MyCollection.dart';
 import 'package:my_app/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => RegisterScreen(),
         '/': (context) => UserScreen(),
         '/myprofile': (context) => MyProfile(),
+        '/mycollection': (context) => MyCollection()
       },
       onGenerateRoute: (settings) {
         return MaterialPageRoute(

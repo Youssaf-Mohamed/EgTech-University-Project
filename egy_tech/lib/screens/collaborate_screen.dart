@@ -13,7 +13,7 @@ class CollaborateScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          _buildScrollableContent(screenSize),
+          _buildScrollableContent(context, screenSize),
           _buildTopNavBar(screenSize.width),
           _buildBottomNavBar(screenSize.width),
         ],
@@ -22,13 +22,13 @@ class CollaborateScreen extends StatelessWidget {
   }
 
   // Scrollable main content area
-  Widget _buildScrollableContent(Size screenSize) {
+  Widget _buildScrollableContent(BuildContext context, Size screenSize) {
     return SingleChildScrollView(
       child: Column(
         children: [
           SizedBox(height: screenSize.height * 0.1),
           _buildCategorySection(screenSize),
-          _buildCollaborateContent(screenSize),
+          _buildCollaborateContent(context, screenSize),
           _buildCollaborationButton(screenSize),
         ],
       ),
@@ -94,7 +94,7 @@ class CollaborateScreen extends StatelessWidget {
   }
 
   // Main content
-  Widget _buildCollaborateContent(Size screenSize) {
+  Widget _buildCollaborateContent(BuildContext context, Size screenSize) {
     return Padding(
       padding: EdgeInsets.all(screenSize.width * 0.05),
       child: AnimatedSwitcher(

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +20,21 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
   bool isChecked = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _checkSession();
+  }
+
+  void _checkSession() async {
+    final authRepository = Provider.of<AuthRepository>(context, listen: false);
+    bool hasSession = await authRepository.isUserLoggedIn(); // Check session
+
+    if (hasSession) {
+      Navigator.pushReplacementNamed(context, '/');
+    }
+  }
+
   void _login() async {
     String email = _emailController.text;
     String password = _passwordController.text;
@@ -42,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
       LoginResponse response = await authRepository.login(email, password);
 
       if (response.status) {
-        Navigator.pushNamed(context, '/');
+        Navigator.pushReplacementNamed(context, '/');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login successful')),
         );

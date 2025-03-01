@@ -1,5 +1,8 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:flutter/material.dart';
 import 'package:my_app/objects/User.dart';
+import 'package:my_app/repositories/auth_repository.dart';
 import 'package:my_app/services/AuthService.dart';
 import 'package:my_app/widgets/custom_bottom_nav.dart';
 import 'package:my_app/widgets/profile_option_tile.dart';
@@ -45,6 +48,15 @@ class _MyProfileState extends State<MyProfile> {
     }
   }
 
+  Future<void> _logout() async {
+    final authRepository = AuthRepository();
+
+    await authRepository.logout();
+    if (mounted) {
+      Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +64,7 @@ class _MyProfileState extends State<MyProfile> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'Profile',
           style: TextStyle(
             fontFamily: 'Satoshi',
@@ -64,21 +76,21 @@ class _MyProfileState extends State<MyProfile> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.favorite_border, color: Colors.black),
+            icon: const Icon(Icons.favorite_border, color: Colors.black),
             onPressed: () {},
           ),
           IconButton(
-            icon: Icon(Icons.shopping_bag_outlined, color: Colors.black),
+            icon: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
             onPressed: () {},
           ),
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(child: Text('Error: $_error'))
               : _user == null
-                  ? Center(child: Text('No user data found'))
+                  ? const Center(child: Text('No user data found'))
                   : Container(
                       color: Colors.white,
                       child: Padding(
@@ -93,7 +105,7 @@ class _MyProfileState extends State<MyProfile> {
                                   children: [
                                     Text(
                                       _user!.name,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontFamily: 'Satoshi',
                                         fontSize: 23,
                                         fontWeight: FontWeight.bold,
@@ -102,30 +114,29 @@ class _MyProfileState extends State<MyProfile> {
                                     ),
                                     CircleAvatar(
                                       radius: 40,
-                                      backgroundImage: _user!.profilePicture !=
-                                              null
-                                          ? NetworkImage(_user!.profilePicture!)
-                                          : AssetImage(
+                                      backgroundImage: _user!.profilePicture != null
+                                          ? NetworkImage(_user!.profilePicture)
+                                          : const AssetImage(
                                                   'assets/images/default_profile.png')
                                               as ImageProvider,
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
                                       'Logged in via ${_user!.email}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontFamily: 'Satoshi',
                                         fontSize: 11,
                                         fontWeight: FontWeight.normal,
                                         color: Colors.grey,
                                       ),
                                     ),
-                                    SizedBox(width: 5),
-                                    Flexible(
+                                    const SizedBox(width: 5),
+                                    const Flexible(
                                       child: Divider(
                                         color: Colors.grey,
                                         thickness: 0.5,
@@ -136,7 +147,7 @@ class _MyProfileState extends State<MyProfile> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             Expanded(
                               child: SingleChildScrollView(
                                 child: Column(
@@ -150,7 +161,7 @@ class _MyProfileState extends State<MyProfile> {
                                         Navigator.pushNamed(context, "/orders");
                                       },
                                     ),
-                                    SizedBox(height: 10),
+                                    const SizedBox(height: 10),
                                     ProfileOptionTile(
                                       title: "My Projects",
                                       subtitle:
@@ -188,7 +199,7 @@ class _MyProfileState extends State<MyProfile> {
                                       icon: Icons.bookmark_border,
                                       onTap: () {
                                         Navigator.pushNamed(
-                                            context, "/collections");
+                                            context, "/mycollection");
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -217,6 +228,14 @@ class _MyProfileState extends State<MyProfile> {
                                       icon: Icons.help_outline,
                                       onTap: () {
                                         Navigator.pushNamed(context, "/help");
+                                      },
+                                    ),
+                                    ProfileOptionTile(
+                                      title: "Logout",
+                                      subtitle: "Sign out from your account",
+                                      icon: Icons.exit_to_app,
+                                      onTap: () async {
+                                        await _logout();
                                       },
                                     ),
                                   ],
