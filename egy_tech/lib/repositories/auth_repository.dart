@@ -15,14 +15,14 @@ class AuthRepository {
     required String email,
     required String password,
     required String gender,
-    File? image, // Add image parameter
+    File? image, 
   }) async {
     return await _authService.register(
       name: name,
       email: email,
       password: password,
       gender: gender,
-      image: image, // Pass the image to AuthService
+      image: image, 
     );
   }
 }

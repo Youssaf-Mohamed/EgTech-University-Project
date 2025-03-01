@@ -1,12 +1,15 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
-import 'package:my_app/screens/auth_screen.dart';
+import 'package:my_app/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'repositories/auth_repository.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
-import 'screens/walkthrough.dart'; // Import the updated walkthrough file
+import 'screens/walkthrough.dart';
 import 'screens/404.dart';
+import 'screens/MyProfile.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,15 +43,15 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: walkthroughCompleted ? '/login' : '/walkthrough',
       routes: {
-        '/walkthrough': (context) => const Walkthrough(), // Single walkthrough route
+        '/walkthrough': (context) => const Walkthrough(),
         '/login': (context) => LoginScreen(),
         '/signup': (context) => RegisterScreen(),
-        '/': (context) => ScreenWithAppBar(child: UserScreen()),
+        '/': (context) => UserScreen(),
+        '/myprofile': (context) => MyProfile(),
       },
-      // Handle unknown routes (404 page)
       onGenerateRoute: (settings) {
         return MaterialPageRoute(
-          builder: (context) => NotFoundPage(), // Show the 404 page
+          builder: (context) => NotFoundPage(), 
         );
       },
     );

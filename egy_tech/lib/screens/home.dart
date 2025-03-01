@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/objects/User.dart';
 import 'package:my_app/services/AuthService.dart';
+import 'package:my_app/widgets/custom_bottom_nav.dart';
 
 class UserScreen extends StatefulWidget {
   @override
@@ -57,7 +58,8 @@ class _UserScreenState extends State<UserScreen> {
                         children: [
                           if (_user!.profilePicture != null)
                             CircleAvatar(
-                              backgroundImage: NetworkImage(_user!.profilePicture!),
+                              backgroundImage:
+                                  NetworkImage(_user!.profilePicture!),
                               radius: 50,
                             ),
                           SizedBox(height: 16),
@@ -67,6 +69,10 @@ class _UserScreenState extends State<UserScreen> {
                         ],
                       ),
                     ),
+      bottomNavigationBar: CustomBottomNavBar(
+        selectedIndex: 0,
+        onItemTapped: (index) {},
+      ),
     );
   }
 }

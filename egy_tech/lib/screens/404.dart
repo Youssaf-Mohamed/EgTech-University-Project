@@ -16,14 +16,14 @@ class NotFoundPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset("assets/images/404.png"),
-                  Text(
+                  const Text(
                     'Your page didn’t respond',
                     style: TextStyle(fontSize: 24),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
-                  Text(
+                  const Text(
                     'This page doesn’t exist or maybe fall asleep! We suggest you back to home',
                     style: TextStyle(
                       fontSize: 14,
@@ -39,10 +39,11 @@ class NotFoundPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Navigate back to the home page or any other page
-                Navigator.of(context).pushReplacementNamed('/');
+                Navigator.pushReplacementNamed(context, '/');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[700], // Set the background color to red
+                backgroundColor:
+                    Colors.red[700], // Set the background color to red
                 minimumSize: const Size(
                     double.infinity, 60), // Full width and height of 50
                 shape: RoundedRectangleBorder(
