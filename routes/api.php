@@ -3,14 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Api\VendorController;
-
+use App\Http\Controllers\Api\RegionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
+/*
+|==========================================
+|> Auth Routes
+|==========================================
+*/
+
 Route::post('/register', [UserController::class, 'register'])->name('register');
 Route::post('/login', [UserController::class, 'login'])->name('login');
 
+/*
+|==========================================
+|> User Routes
+|==========================================
+*/
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/user', [UserController::class, 'show'])->name('user.show');
@@ -18,6 +29,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/user', [UserController::class, 'destroy'])->name('user.destroy');
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 });
+
+/*
+|==========================================
+|> Vendor Routes
+|==========================================
+*/
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('vendor')->name('vendor.')->group(function () {
         Route::get('/', [VendorController::class, 'publicIndex'])->name('public.index');
@@ -34,4 +51,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::get('/dashboard/vendor', [VendorController::class, 'index'])->name('vendor.index');
+});
+
+/*
+|==========================================
+|> Region Routes
+|==========================================
+*/
+Route::prefix('region')->name('region.')->group(function () {
+    Route::get('/', [RegionController::class, 'index'])->name('index');
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('/', [RegionController::class, 'store'])->name('store');
+        Route::put('/{region}', [RegionController::class, 'update'])->name('update');
+        Route::delete('/{region}', [RegionController::class, 'destroy'])->name('destroy');
+    });
 });

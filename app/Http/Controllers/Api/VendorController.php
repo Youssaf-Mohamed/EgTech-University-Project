@@ -76,7 +76,7 @@ class VendorController extends Controller
             }
             return response()->json([
                 'status' => true,
-                'data' => new VendorResource($vendor->loadMissing(['users', 'regions'])),
+                'data' => new VendorResource($vendor->whenLoaded(['users', 'regions'])),
             ]);
         } catch (AccessDeniedHttpException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
@@ -98,7 +98,7 @@ class VendorController extends Controller
         try {
             return response()->json([
                 'status' => true,
-                'data' => new VendorResource($vendor->loadMissing(['users', 'regions'])),
+                'data' => new VendorResource($vendor->whenLoaded(['users', 'regions'])),
             ]);
         } catch (AccessDeniedHttpException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
