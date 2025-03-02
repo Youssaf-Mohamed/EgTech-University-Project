@@ -1,20 +1,20 @@
-// ignore_for_file: unnecessary_null_comparison
-
+// lib/screens/MyProfile.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpod import
 import 'package:my_app/objects/User.dart';
-import 'package:my_app/repositories/auth_repository.dart';
 import 'package:my_app/services/AuthService.dart';
 import 'package:my_app/widgets/custom_bottom_nav.dart';
 import 'package:my_app/widgets/profile_option_tile.dart';
+import 'package:my_app/providers/providers.dart'; // Import your providers
 
-class MyProfile extends StatefulWidget {
-  const MyProfile({super.key});
+class MyProfile extends ConsumerStatefulWidget {
+  const MyProfile({Key? key}) : super(key: key);
 
   @override
-  State<MyProfile> createState() => _MyProfileState();
+  ConsumerState<MyProfile> createState() => _MyProfileState();
 }
 
-class _MyProfileState extends State<MyProfile> {
+class _MyProfileState extends ConsumerState<MyProfile> {
   User? _user;
   bool _isLoading = false;
   String? _error;
@@ -49,11 +49,14 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   Future<void> _logout() async {
-    final authRepository = AuthRepository();
-
+    // Use Riverpod to read the authRepositoryProvider.
+    final authRepository = ref.read(authRepositoryProvider);
     await authRepository.logout();
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Logged out successfully')),
+      );
     }
   }
 
@@ -116,8 +119,7 @@ class _MyProfileState extends State<MyProfile> {
                                       radius: 40,
                                       backgroundImage: _user!.profilePicture != null
                                           ? NetworkImage(_user!.profilePicture)
-                                          : const AssetImage(
-                                                  'assets/images/default_profile.png')
+                                          : const AssetImage('assets/images/default_profile.png')
                                               as ImageProvider,
                                     ),
                                   ],
@@ -168,8 +170,7 @@ class _MyProfileState extends State<MyProfile> {
                                           "Check your project status (customize, track, return, cancel, etc.)",
                                       icon: Icons.groups,
                                       onTap: () {
-                                        Navigator.pushNamed(
-                                            context, "/projects");
+                                        Navigator.pushNamed(context, "/projects");
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -178,8 +179,7 @@ class _MyProfileState extends State<MyProfile> {
                                           "Buy or collaborate from items and makers saved in Wishlist",
                                       icon: Icons.favorite_border,
                                       onTap: () {
-                                        Navigator.pushNamed(
-                                            context, "/Wishlist");
+                                        Navigator.pushNamed(context, "/Wishlist");
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -188,8 +188,7 @@ class _MyProfileState extends State<MyProfile> {
                                           "Browse through interesting Artisan & Designer Profiles",
                                       icon: Icons.person_add_alt,
                                       onTap: () {
-                                        Navigator.pushNamed(
-                                            context, "/following");
+                                        Navigator.pushNamed(context, "/following");
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -198,8 +197,7 @@ class _MyProfileState extends State<MyProfile> {
                                           "Save and refer your collections, crafts, and craftspeople",
                                       icon: Icons.bookmark_border,
                                       onTap: () {
-                                        Navigator.pushNamed(
-                                            context, "/mycollection");
+                                        Navigator.pushNamed(context, "/mycollection");
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -208,8 +206,7 @@ class _MyProfileState extends State<MyProfile> {
                                           "Browse coupons to get discounts on HandmadeHive",
                                       icon: Icons.discount_outlined,
                                       onTap: () {
-                                        Navigator.pushNamed(
-                                            context, "/coupons");
+                                        Navigator.pushNamed(context, "/coupons");
                                       },
                                     ),
                                     ProfileOptionTile(

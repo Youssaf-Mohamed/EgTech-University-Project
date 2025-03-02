@@ -1,10 +1,11 @@
+// lib/screens/register_screen.dart
 import 'dart:io'; // For File class
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpod instead of provider
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart'; // For image picking
-import 'package:my_app/repositories/auth_repository.dart';
 import 'package:my_app/models/RegisterResponse.dart';
+import 'package:my_app/providers/providers.dart'; // Import your Riverpod providers
 
 enum Gender { male, female }
 
@@ -19,14 +20,14 @@ extension GenderExtension on Gender {
   }
 }
 
-class RegisterScreen extends StatefulWidget {
-  RegisterScreen({super.key});
+class RegisterScreen extends ConsumerStatefulWidget {
+  const RegisterScreen({Key? key}) : super(key: key);
 
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -78,8 +79,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      final authRepository =
-          Provider.of<AuthRepository>(context, listen: false);
+      // Use Riverpod's ref to read the authRepositoryProvider.
+      final authRepository = ref.read(authRepositoryProvider);
       String genderString = _selectedGender!.value;
 
       // Upload the image and other data to the server
@@ -95,7 +96,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registration successful')),
         );
-        Navigator.pushNamed(context, '/'); // Redirect to login screen
+        Navigator.pushNamed(context, '/'); // Redirect to login screen or home
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registration failed')),
@@ -138,14 +139,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const SizedBox(height: 10),
                     Text(
                       "Create a new account.",
-                      style:
-                          GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, color: Colors.grey),
                     ),
                     const SizedBox(height: 20),
-                    // Add a widget to display the selected image
+                    // Display the selected image
                     Center(
                       child: GestureDetector(
-                        onTap: _pickImage, // Open image picker when tapped
+                        onTap: _pickImage,
                         child: CircleAvatar(
                           radius: 50,
                           backgroundImage: _selectedImage != null
@@ -238,11 +239,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onPressed: _isLoading ? null : _register,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red[700],
-                          minimumSize: const Size(double.infinity,
-                              60), // Full width and height of 50
+                          minimumSize: const Size(double.infinity, 60),
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(10), // Set border radius
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                         child: _isLoading
@@ -256,7 +255,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 15),
-
                     Center(
                       child: RichText(
                         textAlign: TextAlign.center,
