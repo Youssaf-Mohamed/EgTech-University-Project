@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:my_app/screens/LocationScreen.dart';
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      initialRoute: walkthroughCompleted ? '/location' : '/walkthrough',
+      initialRoute: walkthroughCompleted ? '/login' : '/walkthrough',
       routes: {
         '/walkthrough': (context) => const Walkthrough(),
         '/login': (context) => LoginScreen(),

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:my_app/repositories/auth_repository.dart';
 import 'package:my_app/models/LoginResponse.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:my_app/widgets/TextDivider.dart';
 
@@ -19,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _obscureText = true;
   bool isChecked = false;
-  bool _isCheckingSession = true; // Added to track session check state
+  bool _isCheckingSession = true;
 
   @override
   void initState() {
@@ -28,14 +29,19 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _checkSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isChecked = prefs.getBool('rememberMe') ?? false;
+    });
+
     final authRepository = Provider.of<AuthRepository>(context, listen: false);
-    bool hasSession = await authRepository.isUserLoggedIn(); // Check session
+    bool hasSession = await authRepository.isUserLoggedIn();
 
     if (hasSession) {
       Navigator.pushReplacementNamed(context, '/');
     } else {
       setState(() {
-        _isCheckingSession = false; // Allow login screen to render
+        _isCheckingSession = false;
       });
     }
   }
@@ -58,7 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final authRepository =
           Provider.of<AuthRepository>(context, listen: false);
-      LoginResponse response = await authRepository.login(email, password);
+      LoginResponse response =
+          await authRepository.login(email, password, isChecked);
 
       if (response.status) {
         Navigator.pushReplacementNamed(context, '/');
@@ -86,7 +93,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return _isCheckingSession
         ? const Scaffold(
-            body: Center(child: CircularProgressIndicator()), // Show loader while checking session
+            body: Center(
+                child:
+                    CircularProgressIndicator()), // Show loader while checking session
           )
         : Scaffold(
             body: SingleChildScrollView(
@@ -112,7 +121,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           const SizedBox(height: 10),
                           Text(
                             "Enter the email address you’d like to use to sign in to HandmadeHive. ",
-                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
+                            style: GoogleFonts.poppins(
+                                fontSize: 14, color: Colors.grey),
                           ),
                           const SizedBox(height: 35),
                           TextField(
@@ -130,7 +140,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               labelText: "Password",
                               border: const OutlineInputBorder(),
                               suffixIcon: IconButton(
-                                icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
+                                icon: Icon(_obscureText
+                                    ? Icons.visibility
+                                    : Icons.visibility_off),
                                 onPressed: () {
                                   setState(() {
                                     _obscureText = !_obscureText;
@@ -181,10 +193,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             child: _isLoading
-                                ? const CircularProgressIndicator(color: Colors.white)
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white)
                                 : const Text(
                                     "Login",
-                                    style: TextStyle(color: Colors.white, fontSize: 16),
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16),
                                   ),
                           ),
                           const SizedBox(height: 15),
@@ -196,7 +210,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   Navigator.pushNamed(context, '/signup');
                                 },
-                                child: const Text("Sign Up", style: TextStyle(color: Colors.red)),
+                                child: const Text("Sign Up",
+                                    style: TextStyle(color: Colors.red)),
                               ),
                             ],
                           ),
@@ -214,17 +229,22 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               IconButton(
                                 onPressed: () {},
-                                icon: Image.asset('assets/icons/google.png', width: 30),
+                                icon: Image.asset('assets/icons/google.png',
+                                    width: 30),
                               ),
                               const SizedBox(width: 20),
                               IconButton(
                                 onPressed: () {},
-                                icon: Image.asset('assets/icons/apple-icon-4.png', width: 40),
+                                icon: Image.asset(
+                                    'assets/icons/apple-icon-4.png',
+                                    width: 40),
                               ),
                               const SizedBox(width: 20),
                               IconButton(
                                 onPressed: () {},
-                                icon: Image.asset('assets/icons/facebook-icon.jpg', width: 30),
+                                icon: Image.asset(
+                                    'assets/icons/facebook-icon.jpg',
+                                    width: 30),
                               ),
                             ],
                           ),
@@ -234,7 +254,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         alignment: Alignment.bottomCenter,
                         child: TextButton(
                           onPressed: () {},
-                          child: const Text("Continue as Guest", style: TextStyle(color: Colors.red)),
+                          child: const Text("Continue as Guest",
+                              style: TextStyle(color: Colors.red)),
                         ),
                       ),
                     ],
