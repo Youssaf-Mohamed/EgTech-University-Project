@@ -14,7 +14,7 @@ use App\Enums\Gender;
 
 class User extends Authenticatable implements HasMedia
 {
-    use HasFactory, Notifiable,HasApiTokens, InteractsWithMedia;
+    use HasFactory, Notifiable, HasApiTokens, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -23,9 +23,13 @@ class User extends Authenticatable implements HasMedia
      */
     protected $fillable = [
         'name',
-        'gender',
         'email',
         'password',
+        'phone',
+        'address',
+        'gender',
+        'is_active',
+        'role',
     ];
 
     /**
@@ -36,6 +40,8 @@ class User extends Authenticatable implements HasMedia
     protected $hidden = [
         'password',
         'remember_token',
+        'token',
+        'token_expiration',
     ];
 
     /**
@@ -45,6 +51,8 @@ class User extends Authenticatable implements HasMedia
      */
     protected $attributes = [
         'gender' => Gender::Other->value, // Default gender
+        'is_active' => false,
+        'role' => 'user',
     ];
 
     /**
@@ -58,7 +66,13 @@ class User extends Authenticatable implements HasMedia
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'gender' => Gender::class, // Cast the gender attribute to the Gender enum
+            'is_active' => 'boolean',
         ];
+    }
+
+    public function vendors()
+    {
+        return $this->belongsToMany(Vendor::class, 'user_vendor');
     }
 
     /**
@@ -67,7 +81,7 @@ class User extends Authenticatable implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('profile_pictures')
-             ->singleFile();
+            ->singleFile();
     }
 
     /**
@@ -87,5 +101,15 @@ class User extends Authenticatable implements HasMedia
             Gender::Female => asset('images/female-placeholder.png'),
             default => asset('images/other-placeholder.png'),
         };
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isActive(): bool
+    {
+        return $this->is_active;
     }
 }

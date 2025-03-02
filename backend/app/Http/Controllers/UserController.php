@@ -1,154 +1,243 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Enums\Gender; // Add this
+use App\Enums\Gender;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Exception;
 
 class UserController extends Controller
 {
-    // Get authenticated user's profile (using Resource)
+    use AuthorizesRequests;
+
+    /*
+    |==========================================
+    |> Get all users
+    |==========================================
+    */
+    public function index(Request $request)
+    {
+        $this->authorize('viewAny', User::class);
+
+        $query = User::query();
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%$search%")
+                    ->orWhere('email', 'LIKE', "%$search%");
+            });
+        }
+
+        if ($request->has('role')) {
+            $query->where('role', $request->input('role'));
+        }
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->input('is_active'));
+        }
+
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        $users = $query->paginate($request->input('per_page', 10));
+
+        return response()->json([
+            'status' => true,
+            'data' => UserResource::collection($users),
+            'pagination' => [
+                'total' => $users->total(),
+                'per_page' => $users->perPage(),
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+            ],
+        ]);
+    }
+
+    /*
+    |==========================================
+    |> Get authenticated user's profile
+    |==========================================
+    */
     public function show(Request $request)
     {
-        return response()->json(
-            [
-                'statusCode' => 200,
+        try {
+            return response()->json([
+                'statusCode' => Response::HTTP_OK,
                 'status' => true,
                 'data' => new UserResource($request->user())
-            ]
-        );
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    // Update profile
+    /*
+    |==========================================
+    |> Update user profile
+    |==========================================
+    */
     public function update(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,'.$request->user()->id,
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'gender' => 'sometimes|in:'.implode(',', Gender::getValues()), // Validate enum
-            'password' => 'sometimes|string|min:8|confirmed',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'sometimes|string|max:255',
+                'email' => 'sometimes|string|email|max:255|unique:users,email,' . $request->user()->id,
+                'password' => 'sometimes|string|min:8|confirmed',
+                'address' => 'sometimes|string|max:255',
+                'phone' => 'sometimes|string|max:15|unique:users,phone,' . $request->user()->id,
+                'gender' => 'sometimes|in:' . implode(',', Gender::getValues()),
+                'is_active' => 'sometimes|boolean',
+                'role' => 'sometimes|in:user,vendor,admin',
+                'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
+            if ($validator->fails()) {
+                return response()->json(['status' => false, 'errors' => $validator->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $user = $request->user();
+
+            if ($request->hasFile('profile_picture')) {
+                $user->clearMediaCollection('profile_pictures');
+                $user->addMediaFromRequest('profile_picture')->toMediaCollection('profile_pictures');
+            }
+
+            $user->update($request->only('name', 'email', 'address', 'phone', 'gender', 'is_active', 'role') + [
+                'password' => $request->has('password') ? Hash::make($request->password) : $user->password,
+            ]);
+
+            return new UserResource($user);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $user = $request->user();
-
-        // Handle profile picture
-        if ($request->hasFile('profile_picture')) {
-            $user->clearMediaCollection('profile_pictures');
-            $user->addMediaFromRequest('profile_picture')
-                ->toMediaCollection('profile_pictures');
-        }
-
-        // Update user
-        $user->update([
-            'name' => $request->input('name', $user->name),
-            'email' => $request->input('email', $user->email),
-            'gender' => $request->input('gender', $user->gender),
-            'password' => $request->has('password') 
-                ? Hash::make($request->password) 
-                : $user->password,
-        ]);
-
-        return new UserResource($user);
     }
 
-    // Register
+    /*
+    |==========================================
+    |> Register a new user
+    |==========================================
+    */
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'gender' => 'required|in:'.implode(',', Gender::getValues()), // Add gender validation
-            'bio' => 'nullable|string',
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8',
+                'address' => 'nullable|string|max:255',
+                'phone' => 'nullable|string|max:15|unique:users',
+                'gender' => 'required|in:' . implode(',', Gender::getValues()),
+                'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
 
-        if ($validator->fails()) {
+            if ($validator->fails()) {
+                return response()->json(['status' => false, 'errors' => $validator->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'address' => $request->address,
+                'phone' => $request->phone,
+                'gender' => $request->gender,
+            ]);
+
+            if ($request->hasFile('profile_picture')) {
+                $user->addMediaFromRequest('profile_picture')->toMediaCollection('profile_pictures');
+            }
+
             return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
+                'status' => true,
+                'data' => [
+                    'user' => new UserResource($user),
+                    'token' => $user->createToken('auth_token')->plainTextToken,
+                ],
+            ], Response::HTTP_CREATED);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'gender' => $request->gender,
-            'bio' => $request->bio,
-        ]);
-
-        if ($request->hasFile('profile_picture')) {
-            $user->addMediaFromRequest('profile_picture')
-                ->toMediaCollection('profile_pictures');
-        }
-
-        return response()->json([
-            'status' => true,
-            'data' => [
-                'user' => new UserResource($user),
-                'token' => $user->createToken('auth_token')->plainTextToken,
-            ],
-        ], 201);
     }
 
-    // Login (improved security)
+    /*
+    |==========================================
+    |> User login
+    |==========================================
+    */
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email',
+                'password' => 'required',
+            ]);
 
-        if ($validator->fails()) {
+            if ($validator->fails()) {
+                return response()->json(['status' => false, 'errors' => $validator->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                return response()->json(['status' => false, 'message' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
+            }
+
             return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
+                'status' => true,
+                'data' => [
+                    'user' => new UserResource($user),
+                    'token' => $user->createToken('auth_token')->plainTextToken,
+                ],
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid credentials',
-            ], 401); // Generic message for security
-        }
-
-        return response()->json([
-            'status' => true,
-            'data' => [
-                'user' => new UserResource($user),
-                'token' => $user->createToken('auth_token')->plainTextToken,
-            ],
-        ]);
     }
 
-    // Logout
+    /*
+    |==========================================
+    |> User logout
+    |==========================================
+    */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(['status' => true]);
+        try {
+            $request->user()->currentAccessToken()->delete();
+            return response()->json(['status' => true]);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
-    // Delete user
-    public function destroy(Request $request)
+    /*
+    |==========================================
+    |> Delete the user and associated media.
+    |==========================================
+    */
+    public function destroy(Request $request, $id)
     {
-        $user = $request->user();
+        $user = User::find($id);
+        $this->authorize('delete', $user);
+
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        if (Auth::user()->role !== 'admin' && Auth::user()->id !== $user->id) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
+        }
+
         $user->clearMediaCollection('profile_pictures');
         $user->delete();
-        return response()->json(['status' => true]);
+
+        return response()->json(['status' => true, 'message' => 'User deleted successfully']);
     }
 }
