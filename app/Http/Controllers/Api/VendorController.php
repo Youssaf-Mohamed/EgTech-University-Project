@@ -31,30 +31,7 @@ class VendorController extends Controller
     {
         try {
             $this->authorize('viewAny', Vendor::class);
-
-            $search = $request->query('search');
-            $status = $request->query('status');
-
-            $vendors = Vendor::with(['users', 'regions'])
-                ->when($search, function ($query, $search) {
-                    return $query->where('brand_name', 'LIKE', "%$search%")
-                        ->orWhere('description', 'LIKE', "%$search%");
-                })
-                ->when($status, function ($query, $status) {
-                    return $query->where('status', $status);
-                })
-                ->paginate();
-
-            return response()->json([
-                'status' => true,
-                'data' => VendorResource::collection($vendors),
-                'pagination' => [
-                    'total' => $vendors->total(),
-                    'per_page' => $vendors->perPage(),
-                    'current_page' => $vendors->currentPage(),
-                    'last_page' => $vendors->lastPage(),
-                ],
-            ]);
+            return $this->getVendors($request);
         } catch (AuthorizationException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
@@ -69,29 +46,8 @@ class VendorController extends Controller
     public function publicIndex(Request $request)
     {
         try {
-            // Retrieve query parameters for filtering
-            $search = $request->query('search');
-
-            // Fetch only active vendors with optional filtering
-            $vendors = Vendor::with(['users', 'regions'])
-                ->where('status', 'active')
-                ->when($search, function ($query, $search) {
-                    return $query->where('brand_name', 'LIKE', "%$search%")
-                        ->orWhere('description', 'LIKE', "%$search%");
-                })
-                ->paginate();
-
-            return response()->json([
-                'status' => true,
-                'data' => VendorResource::collection($vendors),
-                'pagination' => [
-                    'total' => $vendors->total(),
-                    'per_page' => $vendors->perPage(),
-                    'current_page' => $vendors->currentPage(),
-                    'last_page' => $vendors->lastPage(),
-                ],
-            ]);
-        } catch (AccessDeniedHttpException $e) {
+            return $this->getVendors($request, true);
+        } catch (AuthorizationException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
             return response()->json(
@@ -122,7 +78,6 @@ class VendorController extends Controller
                 'status' => true,
                 'data' => new VendorResource($vendor->loadMissing(['users', 'regions'])),
             ]);
-            // return new VendorResource($vendor->loadMissing(['users', 'regions']));
         } catch (AccessDeniedHttpException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
@@ -140,7 +95,6 @@ class VendorController extends Controller
     */
     public function show(Vendor $vendor)
     {
-        // return new VendorResource($vendor->loadMissing(['users', 'regions']));
         try {
             return response()->json([
                 'status' => true,
@@ -169,24 +123,21 @@ class VendorController extends Controller
             $vendor->update($request->validated());
 
             if ($request->has('regions')) {
-                foreach ($request->regions as $region) {
-                    $vendor->regions()->updateExistingPivot(
-                        $region['region_id'],
-                        [
-                            'delivery_cost' => $region['delivery_cost'] ?? null,
-                            'discount' => $region['discount'] ?? null,
-                            'description' => $region['description'] ?? null,
-                            'updated_at' => now()
-                        ]
-                    );
-                }
+                $vendor->regions()->sync(collect($request->regions)->mapWithKeys(function ($region) {
+                    return [$region['region_id'] => [
+                        'delivery_cost' => $region['delivery_cost'] ?? null,
+                        'discount' => $region['discount'] ?? null,
+                        'description' => $region['description'] ?? null,
+                        'updated_at' => now()
+                    ]];
+                }));
             }
+
 
             if ($request->hasFile('vendor_images')) {
                 $vendor->clearMediaCollection('vendor_images');
                 $vendor->addMediaFromRequest('vendor_images')->toMediaCollection('vendor_images');
             }
-            // return new VendorResource($vendor->fresh());
             return response()->json([
                 'status' => true,
                 'data' => new VendorResource($vendor->fresh()),
@@ -337,5 +288,39 @@ class VendorController extends Controller
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
+    }
+
+
+    /*
+    |==========================================
+    |> Get all vendor
+    |==========================================
+    */
+    private function getVendors(Request $request, $onlyActive = false)
+    {
+        $search = $request->query('search');
+        $query = Vendor::with(['users', 'regions']);
+
+        if ($onlyActive) {
+            $query->where('status', 'active');
+        }
+
+        $vendors = $query
+            ->when($search, function ($query, $search) {
+                return $query->where('brand_name', 'LIKE', "%$search%")
+                    ->orWhere('description', 'LIKE', "%$search%");
+            })
+            ->paginate();
+
+        return response()->json([
+            'status' => true,
+            'data' => VendorResource::collection($vendors),
+            'pagination' => [
+                'total' => $vendors->total(),
+                'per_page' => $vendors->perPage(),
+                'current_page' => $vendors->currentPage(),
+                'last_page' => $vendors->lastPage(),
+            ],
+        ]);
     }
 }
