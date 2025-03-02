@@ -1,8 +1,11 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:flutter/material.dart';
+import 'package:my_app/screens/LocationScreen.dart';
 import 'package:my_app/screens/MyCollection.dart';
+import 'package:my_app/screens/collaborate_screen.dart';
 import 'package:my_app/screens/home.dart';
+import 'package:my_app/screens/location_map_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'repositories/auth_repository.dart';
@@ -17,8 +20,8 @@ void main() async {
 
   // Check walkthrough status
   final prefs = await SharedPreferences.getInstance();
-  // final bool walkthroughCompleted = prefs.getBool('walkthroughCompleted') ?? false;
-  final bool walkthroughCompleted = false; // for debugging
+  final bool walkthroughCompleted = prefs.getBool('walkthroughCompleted') ?? false;
+  // final bool walkthroughCompleted = false; // for debugging
   runApp(
     MultiProvider(
       providers: [
@@ -42,14 +45,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      initialRoute: walkthroughCompleted ? '/login' : '/walkthrough',
+      initialRoute: walkthroughCompleted ? '/location' : '/walkthrough',
       routes: {
         '/walkthrough': (context) => const Walkthrough(),
         '/login': (context) => LoginScreen(),
         '/signup': (context) => RegisterScreen(),
         '/': (context) => UserScreen(),
         '/myprofile': (context) => MyProfile(),
-        '/mycollection': (context) => MyCollection()
+        '/mycollection': (context) => MyCollection(),
+        '/collaborate': (context) => CollaborateScreen(),
+        '/location': (context) => LocationScreen(),
+        '/LocationMapScreen': (context) => LocationMapScreen()
       },
       onGenerateRoute: (settings) {
         return MaterialPageRoute(

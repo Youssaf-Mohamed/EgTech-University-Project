@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class DummyData {
   // Categories Data
   static final List<Map<String, dynamic>> categories = [
