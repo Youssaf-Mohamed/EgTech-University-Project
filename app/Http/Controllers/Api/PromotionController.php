@@ -13,7 +13,7 @@ use App\Http\Resources\PromotionResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PromotionSubscribeRequest;
 use App\Http\Requests\PromotionUpdateRequest;
-use App\Http\Requests\PromotionCreateRequest;
+use App\Http\Requests\PromotionStoreRequest;
 
 class PromotionController extends Controller
 {
@@ -48,7 +48,7 @@ class PromotionController extends Controller
     |> Create a new promotion
     |==========================================
     */
-    public function create(PromotionCreateRequest $request)
+    public function create(PromotionStoreRequest $request)
     {
         try {
             $validatedData = $request->validated();

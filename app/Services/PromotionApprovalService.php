@@ -18,6 +18,11 @@ class PromotionApprovalService
             'status' => 'approved',
             'start_date' => now(),
         ]);
+
+        $vendor = $pivot->vendor;
+        if ($vendor && $vendor->user) {
+            $vendor->user->notify(new \App\Notifications\PromotionApprovedNotification($vendor, $pivot->promotion));
+        }
     }
 
     /**
@@ -31,5 +36,10 @@ class PromotionApprovalService
         $pivot->update([
             'status' => 'rejected',
         ]);
+
+        $vendor = $pivot->vendor; 
+        if ($vendor && $vendor->user) {
+            $vendor->user->notify(new \App\Notifications\PromotionRejectedNotification($vendor, $pivot->promotion));
+        }
     }
 }

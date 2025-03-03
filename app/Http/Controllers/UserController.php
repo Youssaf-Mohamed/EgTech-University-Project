@@ -11,7 +11,9 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Str;
 use Exception;
+use App\Notifications\AccountVerificationNotification;
 
 class UserController extends Controller
 {
@@ -149,11 +151,13 @@ class UserController extends Controller
                 'address' => $request->address,
                 'phone' => $request->phone,
                 'gender' => $request->gender,
+                'verification_token' => Str::random(64),
             ]);
 
             if ($request->hasFile('profile_picture')) {
                 $user->addMediaFromRequest('profile_picture')->toMediaCollection('profile_pictures');
             }
+            $user->notify(new AccountVerificationNotification($user));
 
             return response()->json([
                 'status' => true,
@@ -239,5 +243,37 @@ class UserController extends Controller
         $user->delete();
 
         return response()->json(['status' => true, 'message' => 'User deleted successfully']);
+    }
+
+    /*
+    |==========================================
+    |>  verify user email 
+    |==========================================
+    */
+    public function verifyAccount($token)
+    {
+        try {
+            $user = User::where('verification_token', $token)->first();
+
+            if (!$user) {
+                return response()->json(['status' => false, 'message' => 'Invalid verification token'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $user->update([
+                'verification_token' => null,
+                'is_verified' => true,
+                'is_active' => true,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Your account has been verified successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(
+                ['status' => false, 'message' => 'Internal Server Error'],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }

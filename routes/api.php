@@ -6,6 +6,13 @@ use App\Http\Controllers\Api\VendorController;
 use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\PromotionController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\Api\ProductDetailController;
+use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -31,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/user', [UserController::class, 'destroy'])->name('user.destroy');
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 });
+Route::get('/verify/{token}', [UserController::class, 'verifyAccount'])->name('verify.account');
 
 /*
 |===================================================================
@@ -97,5 +105,97 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/vendors/{vendor}/promotion/{promotion}/subscribe', [PromotionController::class, 'subscribe'])->name('vendors.promotion.subscribe');
         Route::put('/vendors/{vendor}/promotion/{promotion}/approve', [PromotionController::class, 'approveSubscription'])->name('vendors.promotion.approve');
         Route::put('/vendors/{vendor}/promotion/{promotion}/reject', [PromotionController::class, 'rejectSubscription'])->name('vendors.promotion.reject');
+    });
+});
+
+/*
+|===================================================================
+|> Category Management Routes (Protected)
+|===================================================================
+*/
+Route::prefix('category')->name('category.')->group(function () {
+    Route::get('/', [CategoryController::class, 'index'])->name('index');
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('/', [CategoryController::class, 'store'])->name('store');
+        Route::put('/{category}', [CategoryController::class, 'update'])->name('update');
+        Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('destroy');
+    });
+});
+
+/*
+|===================================================================
+|> Category Management Routes (Protected)
+|===================================================================
+*/
+Route::prefix('product')->name('product.')->group(function () {
+    Route::get('/', [ProductController::class, 'index'])->name('index');
+    Route::get('/{product}', [ProductController::class, 'show'])->name('show');
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('/', [ProductController::class, 'store'])->name('store');
+        Route::put('/{product}', [ProductController::class, 'update'])->name('update');
+        Route::delete('/{product}', [ProductController::class, 'destroy'])->name('destroy');
+    });
+});
+
+/*
+|===================================================================
+|> Product Details Management Routes (Protected)
+|===================================================================
+*/
+Route::prefix('product/{product}/details')->name('product.details.')->group(function () {
+    Route::get('/', [ProductDetailController::class, 'index'])->name('index');
+    Route::get('/{detail}', [ProductDetailController::class, 'show'])->name('show');
+        Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('/', [ProductDetailController::class, 'store'])->name('store');
+        Route::put('/{detail}', [ProductDetailController::class, 'update'])->name('update');
+        Route::delete('/{detail}', [ProductDetailController::class, 'destroy'])->name('destroy');
+    });
+});
+
+/*
+|===================================================================
+|> Favorite Management Routes (Protected)
+|===================================================================
+*/
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('favorite')->name('favorite.')->group(function () {
+        Route::post('/add/{product}', [FavoriteController::class, 'add'])->name('add');
+        Route::delete('/remove/{product}', [FavoriteController::class, 'remove'])->name('remove');
+        Route::get('/', [FavoriteController::class, 'index'])->name('index');
+        Route::get('/check/{product}', [FavoriteController::class, 'check'])->name('check');
+    });
+});
+
+/*
+|===================================================================
+|> Reviews Management Routes (Protected)
+|===================================================================
+*/
+Route::prefix('product/{product}/reviews')->name('product.reviews.')->group(function () {
+    Route::get('/', [ReviewController::class, 'index'])->name('index');
+        Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('/', [ReviewController::class, 'store'])->name('store');
+        Route::put('/{review}', [ReviewController::class, 'update'])->name('update');
+        Route::delete('/{review}', [ReviewController::class, 'destroy'])->name('destroy');
+    });
+});
+
+/*
+|===================================================================
+|> Home Route
+|===================================================================
+*/
+Route::get('/home', [HomeController::class, 'index'])->name('home.index');
+
+/*
+|===================================================================
+|> Notification Management Routes (Protected)
+|===================================================================
+*/
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::put('/{id}/read', [NotificationController::class, 'markAsRead'])->name('markAsRead');
+        Route::put('/read-all', [NotificationController::class, 'markAllAsRead'])->name('markAllAsRead');
     });
 });

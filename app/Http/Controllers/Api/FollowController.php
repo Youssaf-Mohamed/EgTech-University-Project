@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Http\Resources\ProductResource;
+use App\Models\Product;
 use App\Models\Vendor;
+use Illuminate\Http\Response;
 
 class FollowController extends Controller
 {
@@ -29,12 +32,12 @@ class FollowController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to follow/unfollow vendor',
-            ], 400);
+            ],  Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Internal Server Error',
-            ], 500);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -63,7 +66,7 @@ class FollowController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Internal Server Error',
-            ], 500);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -96,7 +99,7 @@ class FollowController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Internal Server Error',
-            ], 500);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -30,6 +30,8 @@ class User extends Authenticatable implements HasMedia
         'gender',
         'is_active',
         'role',
+        'verification_token',
+        'is_verified'
     ];
 
     /**
@@ -78,6 +80,11 @@ class User extends Authenticatable implements HasMedia
     public function followedVendors()
     {
         return $this->belongsToMany(Vendor::class, 'follows', 'user_id', 'vendor_id');
+    }
+
+    public function favoriteProducts()
+    {
+        return $this->belongsToMany(Product::class, 'favorites');
     }
 
     /**
