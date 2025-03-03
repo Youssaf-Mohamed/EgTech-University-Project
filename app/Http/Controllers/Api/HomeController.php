@@ -23,10 +23,17 @@ class HomeController extends Controller
         try {
             $data = [
                 'categories' => $this->getImportantCategories(),
-                'promoted_products' => $this->getPromotedProducts(),
+                // 'promoted_products' => $this->getPromotedProducts(),
                 'followed_vendors' => $this->getFollowedVendorsLatestProducts($request),
-                'demanded_products' => $this->getMostDemandedProducts(),
+                // 'demanded_products' => $this->getMostDemandedProducts(),
             ];
+
+            if (empty(array_filter($data))) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No data available',
+                ], Response::HTTP_OK);
+            }
 
             return response()->json([
                 'status' => true,
@@ -39,6 +46,7 @@ class HomeController extends Controller
             );
         }
     }
+
 
     /*
     |==========================================
@@ -53,26 +61,29 @@ class HomeController extends Controller
             return Cache::get($cacheKey);
         }
 
-        $categories = Category::with(['products' => function ($query) {
+        $categories = Category::has('products')->with(['products' => function ($query) {
             $query->take(4)->orderByDesc('created_at');
-        }])
-            ->limit(5)
-            ->get()
-            ->map(function ($category) {
-                return [
-                    'id' => $category->id,
-                    'name' => $category->category_name,
-                    'image' => $category->getImageUrl(),
-                    'products' => $category->products->map(function ($product) {
-                        return [
-                            'id' => $product->id,
-                            'name' => $product->product_name,
-                            'price' => $product->details->min('price') ?? 0.00,
-                            'average_rating' => $product->reviews()->avg('rating') ?? 0,
-                        ];
-                    }),
-                ];
-            });
+        }])->limit(5)->get();
+
+        if ($categories->isEmpty()) {
+            return [];
+        }
+
+        $categories = $categories->map(function ($category) {
+            return [
+                'id' => $category->id,
+                'name' => $category->category_name,
+                'image' => $category->getImageUrl(),
+                'products' => $category->products->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->product_name,
+                        'price' => optional($product->details)->min('price') ?? 0.00,
+                        'average_rating' => optional($product->reviews())->avg('rating') ?? 0,
+                    ];
+                }),
+            ];
+        });
 
         Cache::put($cacheKey, $categories, now()->addMinutes(10));
 
@@ -92,30 +103,42 @@ class HomeController extends Controller
             return Cache::get($cacheKey);
         }
 
-        $products = Product::whereIn('id', Promotion::where('status', 'approved')
+        // Get approved promotions with valid end dates
+        $promotionProductIds = Promotion::where('status', 'approved')
             ->whereDate('end_date', '>=', now())
-            ->pluck('product_id'))
+            ->pluck('product_id');
+
+        if ($promotionProductIds->isEmpty()) {
+            return [];
+        }
+
+        // Fetch products and their details/vendor relationships
+        $products = Product::whereIn('id', $promotionProductIds)
             ->with('details', 'vendor')
             ->take(10)
-            ->get()
-            ->map(function ($product) {
-                return [
-                    'id' => $product->id,
-                    'name' => $product->product_name,
-                    'price' => $product->details->min('price') ?? 0.00,
-                    'average_rating' => $product->reviews()->avg('rating') ?? 0,
-                    'vendor' => [
-                        'id' => $product->vendor->id,
-                        'name' => $product->vendor->brand_name,
-                    ],
-                ];
-            });
+            ->get();
+
+        if ($products->isEmpty()) {
+            return [];
+        }
+
+        $products = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->product_name,
+                'price' => optional($product->details)->min('price') ?? 0.00,
+                'average_rating' => optional($product->reviews())->avg('rating') ?? 0,
+                'vendor' => $product->vendor ? [
+                    'id' => $product->vendor->id,
+                    'name' => $product->vendor->brand_name,
+                ] : null,
+            ];
+        });
 
         Cache::put($cacheKey, $products, now()->addMinutes(10));
 
         return $products;
     }
-
     /*
     |==========================================
     |> Get latest products from followed vendors
@@ -123,6 +146,7 @@ class HomeController extends Controller
     */
     private function getFollowedVendorsLatestProducts(Request $request)
     {
+
         $user = auth()->user();
 
         if (!$user) {
@@ -145,19 +169,24 @@ class HomeController extends Controller
             ->with('details', 'vendor')
             ->orderByDesc('created_at')
             ->take(10)
-            ->get()
-            ->map(function ($product) {
-                return [
-                    'id' => $product->id,
-                    'name' => $product->product_name,
-                    'price' => $product->details->min('price') ?? 0.00,
-                    'average_rating' => $product->reviews()->avg('rating') ?? 0,
-                    'vendor' => [
-                        'id' => $product->vendor->id,
-                        'name' => $product->vendor->brand_name,
-                    ],
-                ];
-            });
+            ->get();
+
+        if ($products->isEmpty()) {
+            return [];
+        }
+
+        $products = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->product_name,
+                'price' => optional($product->details)->min('price') ?? 0.00,
+                'average_rating' => optional($product->reviews())->avg('rating') ?? 0,
+                'vendor' => $product->vendor ? [
+                    'id' => $product->vendor->id,
+                    'name' => $product->vendor->brand_name,
+                ] : null,
+            ];
+        });
 
         Cache::put($cacheKey, $products, now()->addMinutes(10));
 
@@ -177,27 +206,40 @@ class HomeController extends Controller
             return Cache::get($cacheKey);
         }
 
-        $products = Product::whereIn('id', Promotion::where('status', 'approved')
+        // Get product IDs from approved promotions with valid end dates
+        $promotionProductIds = Promotion::where('status', 'approved')
             ->whereDate('end_date', '>=', now())
-            ->pluck('product_id'))
+            ->pluck('product_id');
+
+        if ($promotionProductIds->isEmpty()) {
+            return [];
+        }
+
+        // Fetch products based on promotions or order quantity
+        $products = Product::whereIn('id', $promotionProductIds)
             ->orWhereHas('orders', function ($q) {
                 $q->orderByDesc('quantity');
             })
             ->with('details', 'vendor')
             ->take(10)
-            ->get()
-            ->map(function ($product) {
-                return [
-                    'id' => $product->id,
-                    'name' => $product->product_name,
-                    'price' => $product->details->min('price') ?? 0.00,
-                    'average_rating' => $product->reviews()->avg('rating') ?? 0,
-                    'vendor' => [
-                        'id' => $product->vendor->id,
-                        'name' => $product->vendor->brand_name,
-                    ],
-                ];
-            });
+            ->get();
+
+        if ($products->isEmpty()) {
+            return [];
+        }
+
+        $products = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->product_name,
+                'price' => optional($product->details)->min('price') ?? 0.00,
+                'average_rating' => optional($product->reviews())->avg('rating') ?? 0,
+                'vendor' => $product->vendor ? [
+                    'id' => $product->vendor->id,
+                    'name' => $product->vendor->brand_name,
+                ] : null,
+            ];
+        });
 
         Cache::put($cacheKey, $products, now()->addMinutes(10));
 

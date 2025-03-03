@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\Controller;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class NotificationController extends Controller
 {
@@ -50,7 +51,15 @@ class NotificationController extends Controller
         try {
             $user = auth()->user();
 
-            $notification = $user->notifications()->findOrFail($id);
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access'
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+
+            // Find the notification for the authenticated user
+            $notification = $user->notifications()->where('id', $id)->firstOrFail();
 
             $notification->markAsRead();
 
@@ -58,11 +67,16 @@ class NotificationController extends Controller
                 'status' => true,
                 'message' => 'Notification marked as read',
             ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Notification not found'
+            ], Response::HTTP_NOT_FOUND);
         } catch (Exception $e) {
-            return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
+            return response()->json([
+                'status' => false,
+                'message' => 'Internal Server Error ' . $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

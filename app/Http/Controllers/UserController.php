@@ -68,7 +68,25 @@ class UserController extends Controller
     |> Get authenticated user's profile
     |==========================================
     */
-    public function show(Request $request)
+    public function show(Request $request, $id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            return response()->json([
+                'statusCode' => Response::HTTP_OK,
+                'status' => true,
+                'data' => new UserResource($user)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['statusCode' => Response::HTTP_NOT_FOUND, 'status' => false]);
+        }
+    }
+    /*
+    |==========================================
+    |> Get authenticated user's profile
+    |==========================================
+    */
+    public function currentUser(Request $request)
     {
         try {
             return response()->json([
@@ -247,7 +265,7 @@ class UserController extends Controller
 
     /*
     |==========================================
-    |>  verify user email 
+    |>  verify user email
     |==========================================
     */
     public function verifyAccount($token)

@@ -16,6 +16,7 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'gender' => $this->gender,
             'is_active' => $this->is_active,
+            'is_verified' => $this->is_verified,
             'role' => $this->role,
             'profile_picture' => $this->getFirstMediaUrl('profile_pictures'),
             'created_at' => $this->created_at->toDateTimeString(),

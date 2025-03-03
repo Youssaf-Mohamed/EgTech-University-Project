@@ -33,9 +33,10 @@ Route::post('/login', [UserController::class, 'login'])->name('login');
 */
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/user', [UserController::class, 'show'])->name('user.show');
-    Route::post('/user', [UserController::class, 'update'])->name('user.update');
-    Route::delete('/user', [UserController::class, 'destroy'])->name('user.destroy');
+    Route::get('/user', [UserController::class, 'currentUser'])->name('user.current');
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('user.show');
+    Route::post('/users/{user}', [UserController::class, 'update'])->name('user.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('user.destroy');
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 });
 Route::get('/verify/{token}', [UserController::class, 'verifyAccount'])->name('verify.account');
@@ -47,16 +48,16 @@ Route::get('/verify/{token}', [UserController::class, 'verifyAccount'])->name('v
 */
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('vendor')->as('vendor.')->group(function () {
+        Route::get('/trashed', [VendorController::class, 'trashedVendors'])->name('trashed-vendors');
         Route::get('/', [VendorController::class, 'publicIndex'])->name('public.index');
         Route::post('/', [VendorController::class, 'store'])->name('store');
         Route::get('/{vendor}', [VendorController::class, 'show'])->name('show');
-        Route::put('/{vendor}', [VendorController::class, 'update'])->name('update');
+        Route::post('/{vendor}', [VendorController::class, 'update'])->name('update');
         Route::delete('/{vendor}', [VendorController::class, 'destroy'])->name('destroy');
 
         Route::post('/{vendor}/approve', [VendorController::class, 'approve'])->name('approve');
         Route::post('/{vendor}/reject', [VendorController::class, 'reject'])->name('reject');
 
-        Route::get('/trashed', [VendorController::class, 'trashedVendors'])->name('trashed');
         Route::post('/{id}/restore', [VendorController::class, 'restore'])->name('restore');
     });
 
@@ -72,7 +73,7 @@ Route::prefix('region')->as('region.')->group(function () {
     Route::get('/', [RegionController::class, 'index'])->name('index');
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [RegionController::class, 'store'])->name('store');
-        Route::put('/{region}', [RegionController::class, 'update'])->name('update');
+        Route::post('/{region}', [RegionController::class, 'update'])->name('update');
         Route::delete('/{region}', [RegionController::class, 'destroy'])->name('destroy');
     });
 });
@@ -84,7 +85,7 @@ Route::prefix('region')->as('region.')->group(function () {
 */
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('follow')->as('follow.')->group(function () {
-        Route::post('/follow/{vendor}', [FollowController::class, 'toggleFollow'])->name('toggle');
+        Route::post('/{vendor}', [FollowController::class, 'toggleFollow'])->name('toggle');
         Route::get('/vendors', [FollowController::class, 'getFollowedVendors'])->name('vendors');
         Route::get('/activities', [FollowController::class, 'getLatestActivities'])->name('activities');
     });
@@ -95,11 +96,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 |> Promotion Management Routes (Protected)
 |===================================================================
 */
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::prefix('promotion')->as('promotion.')->group(function () {
-        Route::get('/', [PromotionController::class, 'index'])->name('index');
+Route::prefix('promotion')->as('promotion.')->group(function () {
+    Route::get('/', [PromotionController::class, 'index'])->name('index');
+    Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [PromotionController::class, 'create'])->name('create');
-        Route::put('/{promotion}', [PromotionController::class, 'update'])->name('update');
+        Route::post('/{promotion}', [PromotionController::class, 'update'])->name('update');
         Route::delete('/{promotion}', [PromotionController::class, 'destroy'])->name('destroy');
 
         Route::post('/vendors/{vendor}/promotion/{promotion}/subscribe', [PromotionController::class, 'subscribe'])->name('vendors.promotion.subscribe');
@@ -117,7 +118,7 @@ Route::prefix('category')->name('category.')->group(function () {
     Route::get('/', [CategoryController::class, 'index'])->name('index');
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [CategoryController::class, 'store'])->name('store');
-        Route::put('/{category}', [CategoryController::class, 'update'])->name('update');
+        Route::post('/{category}', [CategoryController::class, 'update'])->name('update');
         Route::delete('/{category}', [CategoryController::class, 'destroy'])->name('destroy');
     });
 });
@@ -195,7 +196,7 @@ Route::get('/home', [HomeController::class, 'index'])->name('home.index');
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('notifications')->name('notifications.')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('index');
-        Route::put('/{id}/read', [NotificationController::class, 'markAsRead'])->name('markAsRead');
-        Route::put('/read-all', [NotificationController::class, 'markAllAsRead'])->name('markAllAsRead');
+        Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('markAllAsRead');
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('markAsRead');
     });
 });

@@ -24,7 +24,7 @@ class PromotionController extends Controller
     |> Get all promotions
     |==========================================
     */
-    public function index(Request $request)
+    public function index()
     {
         try {
             $promotions = Promotion::all();
@@ -37,7 +37,7 @@ class PromotionController extends Controller
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (\Exception $e) {
             return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
+                ['status' => false, 'message' => 'Internal Server Error '. $e->getMessage()],
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
@@ -51,6 +51,7 @@ class PromotionController extends Controller
     public function create(PromotionStoreRequest $request)
     {
         try {
+            $this->authorize('create', Promotion::class);
             $validatedData = $request->validated();
 
             $promotion = Promotion::create($validatedData);
@@ -75,6 +76,7 @@ class PromotionController extends Controller
     public function update(PromotionUpdateRequest $request, Promotion $promotion)
     {
         try {
+            $this->authorize('update', $promotion);
             $validatedData = $request->validated();
 
             $promotion->update($validatedData);

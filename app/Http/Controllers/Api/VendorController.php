@@ -75,7 +75,7 @@ class VendorController extends Controller
             }
             return response()->json([
                 'status' => true,
-                'data' => new VendorResource($vendor->whenLoaded(['users', 'regions'])),
+                'data' => new VendorResource($vendor->Load(['users', 'regions'])),
             ]);
         } catch (AuthorizationException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
@@ -97,13 +97,13 @@ class VendorController extends Controller
         try {
             return response()->json([
                 'status' => true,
-                'data' => new VendorResource($vendor->whenLoaded(['users', 'regions'])),
+                'data' => new VendorResource($vendor->load(['users', 'regions'])),
             ]);
-        } catch (AuthorizationException $e) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['status' => false,],Response::HTTP_NOT_FOUND);
         } catch (Exception $e) {
             return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
+                ['status' => false, 'message' => 'Internal Server Error '],
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }

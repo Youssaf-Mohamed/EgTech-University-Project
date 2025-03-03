@@ -26,3 +26,4 @@ class VendorUpdateRequest extends FormRequest
         ];
     }
 }
+
