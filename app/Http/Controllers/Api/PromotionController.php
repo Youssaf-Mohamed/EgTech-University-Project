@@ -51,7 +51,7 @@ class PromotionController extends Controller
     public function create(PromotionStoreRequest $request)
     {
         try {
-            $this->authorize('create', Promotion::class);
+            // $this->authorize('create', Promotion::class);
             $validatedData = $request->validated();
 
             $promotion = Promotion::create($validatedData);
@@ -62,7 +62,7 @@ class PromotionController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
+                ['status' => false, 'message' => 'Internal Server Error'. $e->getMessage()],
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
