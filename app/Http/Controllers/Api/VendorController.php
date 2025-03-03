@@ -15,7 +15,6 @@ use Illuminate\Http\Response;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Auth\Access\AuthorizationException;
 
 class VendorController extends Controller
@@ -78,7 +77,7 @@ class VendorController extends Controller
                 'status' => true,
                 'data' => new VendorResource($vendor->whenLoaded(['users', 'regions'])),
             ]);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AuthorizationException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
             return response()->json(
@@ -100,7 +99,7 @@ class VendorController extends Controller
                 'status' => true,
                 'data' => new VendorResource($vendor->whenLoaded(['users', 'regions'])),
             ]);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AuthorizationException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
             return response()->json(
@@ -142,7 +141,7 @@ class VendorController extends Controller
                 'status' => true,
                 'data' => new VendorResource($vendor->fresh()),
             ]);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AuthorizationException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => 'Internal Server Error'], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -162,7 +161,7 @@ class VendorController extends Controller
             return response()->json([
                 'status' => true,
             ]);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AuthorizationException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
             return response()->json(
@@ -187,7 +186,7 @@ class VendorController extends Controller
                 'status' => true,
                 'data' => new VendorResource($vendor),
             ]);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AuthorizationException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
             return response()->json(
@@ -211,7 +210,7 @@ class VendorController extends Controller
             return response()->json([
                 'status' => true,
             ]);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AuthorizationException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
             return response()->json(
@@ -248,7 +247,7 @@ class VendorController extends Controller
                 'status' => true,
                 'data' => VendorResource::collection($vendors),
             ]);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AuthorizationException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
             return response()->json(
@@ -275,7 +274,7 @@ class VendorController extends Controller
                 'status' => true,
                 'data' => new VendorResource($vendor),
             ]);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AuthorizationException $e) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
         } catch (ModelNotFoundException $e) {
             return response()->json(

@@ -30,6 +30,18 @@ class Vendor extends Model implements HasMedia
         return $this->belongsToMany(User::class, 'user_vendor');
     }
 
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'follows', 'vendor_id', 'user_id');
+    }
+
+    public function promotions()
+    {
+        return $this->belongsToMany(Promotion::class, 'vendor_promotion')
+            ->withPivot('start_date', 'end_date', 'status')
+            ->withTimestamps();
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('vendor_images')->singleFile();
