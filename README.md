@@ -1,7 +1,3 @@
-Below is a structured **README** file that provides an API catalog with detailed requirements for each endpoint. This will help users understand the available endpoints, their functionalities, and the required parameters.
-
----
-
 # API Documentation
 
 This document outlines the available API endpoints for the application, along with their functionalities, required parameters, and expected responses.
