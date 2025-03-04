@@ -1,19 +1,20 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+use App\Http\Controllers\Controller;
 
 use App\Models\Promotion;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use App\Models\Vendor;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Auth\Access\AuthorizationException;
-use App\Services\PromotionApprovalService;
 use App\Http\Resources\PromotionResource;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\PromotionSubscribeRequest;
-use App\Http\Requests\PromotionUpdateRequest;
+use App\Models\Vendor;
 use App\Http\Requests\PromotionStoreRequest;
+use App\Http\Requests\PromotionUpdateRequest;
+use App\Services\PromotionApprovalService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Exception;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PromotionController extends Controller
 {
@@ -21,50 +22,91 @@ class PromotionController extends Controller
 
     /*
     |==========================================
-    |> Get all promotions
+    |> Get all promotions for admin
     |==========================================
     */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $promotions = Promotion::all();
-
-            return response()->json([
-                'status' => true,
-                'data' => PromotionResource::collection($promotions)
-            ]);
+            return $this->getPromotions($request);
         } catch (AuthorizationException $e) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
-        } catch (\Exception $e) {
-            return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error '. $e->getMessage()],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
 
     /*
     |==========================================
-    |> Create a new promotion
+    |> Get all vendor subscriptions to promotions
     |==========================================
     */
-    public function create(PromotionStoreRequest $request)
+    public function vendorSubscriptions(Request $request)
     {
         try {
-            // $this->authorize('create', Promotion::class);
-            $validatedData = $request->validated();
+            $this->authorize('viewAny', Promotion::class);
 
-            $promotion = Promotion::create($validatedData);
+            $search = $request->query('search');
+            $subscriptions = Promotion::with(['vendors' => function ($query) use ($search) {
+                if ($search) {
+                    $query->whereHas('vendor', function ($q) use ($search) {
+                        $q->where('brand_name', 'LIKE', "%$search%")
+                            ->orWhere('description', 'LIKE', "%$search%");
+                    });
+                }
+            }])
+                ->whereHas('vendors')
+                ->paginate();
 
+            return response()->json([
+                'status' => true,
+                'data' => PromotionResource::collection($subscriptions),
+            ]);
+        } catch (AuthorizationException $e) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
+        }
+    }
+
+    /*
+    |==========================================
+    |> Store a new promotion
+    |==========================================
+    */
+    public function store(PromotionStoreRequest $request)
+    {
+        try {
+            $this->authorize('create', Promotion::class);
+
+            $promotion = Promotion::create($request->validated());
             return response()->json([
                 'status' => true,
                 'data' => new PromotionResource($promotion),
             ]);
-        } catch (\Exception $e) {
-            return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'. $e->getMessage()],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
+        } catch (AuthorizationException $e) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
+        }
+    }
+
+    /*
+    |==========================================
+    |> Show a single promotion
+    |==========================================
+    */
+    public function show(Promotion $promotion)
+    {
+        try {
+            return response()->json([
+                'status' => true,
+                'data' => new PromotionResource($promotion->load('vendors')),
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['status' => false, 'message' => 'Promotion not found'], 404);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
 
@@ -77,21 +119,106 @@ class PromotionController extends Controller
     {
         try {
             $this->authorize('update', $promotion);
-            $validatedData = $request->validated();
 
-            $promotion->update($validatedData);
+            $promotion->update($request->validated());
+            return response()->json([
+                'status' => true,
+                'data' => new PromotionResource($promotion->fresh()),
+            ]);
+        } catch (AuthorizationException $e) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
+        }
+    }
+
+    /*
+    |==========================================
+    |> Vendor subscribes to a promotion
+    |==========================================
+    */
+    public function subscribe(Vendor $vendor, Promotion $promotion)
+    {
+        try {
+            $this->authorize('subscribe', $promotion);
+
+            $vendor->promotions()->attach($promotion->id, [
+                'start_date' => now(),
+                'end_date' => now()->addDays(value: $promotion->duration),
+                'status' => 'pending',
+            ]);
 
             return response()->json([
                 'status' => true,
-                'data' => new PromotionResource($promotion),
+                'message' => 'Subscription request sent successfully.',
             ]);
-        } catch (\Exception $e) {
-            return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
+        } catch (AuthorizationException $e) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'. $e->getMessage()], 403);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'. $e->getMessage()], 500);
         }
     }
+
+    /*
+    |==========================================
+    |> Approve a vendor's subscription to a promotion
+    |==========================================
+    */
+    public function approveSubscription(Vendor $vendor, Promotion $promotion, PromotionApprovalService $approvalService)
+    {
+        try {
+            $this->authorize('update', $promotion);
+
+            $pivot = $vendor->promotions()->wherePivot('promotion_id', $promotion->id)->first();
+            if (!$pivot) {
+                return response()->json(['status' => false, 'message' => 'No subscription found.'], 404);
+            }
+
+            $vendor->promotions()->updateExistingPivot($promotion->id, [
+                'status' => 'approved',
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Subscription approved successfully.',
+            ]);
+        } catch (AuthorizationException $e) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'. $e->getMessage()], 500);
+        }
+    }
+
+    /*
+    |==========================================
+    |> Reject a vendor's subscription to a promotion
+    |==========================================
+    */
+    public function rejectSubscription(Vendor $vendor, Promotion $promotion, PromotionApprovalService $approvalService)
+    {
+        try {
+            $this->authorize('update', $promotion);
+
+            $pivot = $vendor->promotions()->wherePivot('promotion_id', $promotion->id)->first();
+            if (!$pivot) {
+                return response()->json(['status' => false, 'message' => 'No subscription found.'], 404);
+            }
+
+            $vendor->promotions()->updateExistingPivot($promotion->id, [
+                'status' => 'rejected',
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Subscription rejected successfully.',
+            ]);
+        } catch (AuthorizationException $e) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'. $e->getMessage()], 500);
+        }
+    }
+
 
     /*
     |==========================================
@@ -107,106 +234,46 @@ class PromotionController extends Controller
 
             return response()->json([
                 'status' => true,
+                'message' => 'Promotion deleted successfully.',
             ]);
         } catch (AuthorizationException $e) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
-        } catch (\Exception $e) {
-            return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['status' => false, 'message' => 'Promotion not found'], 404);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
 
     /*
     |==========================================
-    |>  subscribe to a promotion
+    |> Get all promotions
     |==========================================
     */
-    public function subscribe(PromotionSubscribeRequest $request, Promotion $promotion)
+    private function getPromotions(Request $request, $onlyActive = false)
     {
-        try {
-            $vendor = auth()->user()->vendors()->first();
+        $search = $request->query('search');
+        $query = Promotion::with('vendors');
 
-            if (!$vendor) {
-                return response()->json(['status' => false, 'message' => 'Vendor not found'], Response::HTTP_NOT_FOUND);
-            }
-
-            $validatedData = $request->validated();
-
-            $endDate = now()->addDays($promotion->duration);
-
-            $vendor->promotions()->attach($promotion->id, [
-                'start_date' => $validatedData['start_date'],
-                'end_date' => $endDate,
-                'status' => 'pending',
-            ]);
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Subscription request created successfully',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
+        if ($onlyActive) {
+            $query->where('status', 'active');
         }
-    }
 
-    /*
-    |==========================================
-    |> approve Subscription
-    |==========================================
-    */
-    public function approveSubscription(Vendor $vendor, Promotion $promotion, PromotionApprovalService $approvalService)
-    {
-        try {
-            $this->authorize('approve', $promotion);
+        $promotions = $query
+            ->when($search, function ($query, $search) {
+                return $query->where('name', 'LIKE', "%$search%");
+            })
+            ->paginate();
 
-            $subscription = $vendor->promotions()->wherePivot('promotion_id', $promotion->id)->first();
-
-            if ($subscription) {
-                $approvalService->approve($subscription->pivot);
-            }
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Subscription approved successfully',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Internal Server Error',
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /*
-    |==========================================
-    |> reject Subscription
-    |==========================================
-    */
-    public function rejectSubscription(Vendor $vendor, Promotion $promotion, PromotionApprovalService $approvalService)
-    {
-        try {
-            $this->authorize('reject', $promotion);
-
-            $subscription = $vendor->promotions()->wherePivot('promotion_id', $promotion->id)->first();
-
-            if ($subscription) {
-                $approvalService->reject($subscription->pivot);
-            }
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Subscription rejected successfully',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Internal Server Error',
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return response()->json([
+            'status' => true,
+            'data' => PromotionResource::collection($promotions),
+            'pagination' => [
+                'total' => $promotions->total(),
+                'per_page' => $promotions->perPage(),
+                'current_page' => $promotions->currentPage(),
+                'last_page' => $promotions->lastPage(),
+            ],
+        ]);
     }
 }

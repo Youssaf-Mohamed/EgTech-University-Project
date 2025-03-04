@@ -99,13 +99,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::prefix('promotion')->as('promotion.')->group(function () {
     Route::get('/', [PromotionController::class, 'index'])->name('index');
     Route::middleware(['auth:sanctum'])->group(function () {
-        Route::post('/', [PromotionController::class, 'create'])->name('create');
+        Route::get('/active', [PromotionController::class, 'vendorSubscriptions'])->name('active');
+        Route::post('/', [PromotionController::class, 'store'])->name('store');
         Route::post('/{promotion}', [PromotionController::class, 'update'])->name('update');
         Route::delete('/{promotion}', [PromotionController::class, 'destroy'])->name('destroy');
-
-        Route::post('/vendors/{vendor}/promotion/{promotion}/subscribe', [PromotionController::class, 'subscribe'])->name('vendors.promotion.subscribe');
-        Route::put('/vendors/{vendor}/promotion/{promotion}/approve', [PromotionController::class, 'approveSubscription'])->name('vendors.promotion.approve');
-        Route::put('/vendors/{vendor}/promotion/{promotion}/reject', [PromotionController::class, 'rejectSubscription'])->name('vendors.promotion.reject');
+        Route::post('/vendors/{vendor}/promotions/{promotion}/subscribe', [PromotionController::class, 'subscribe'])->name('vendors.promotions.subscribe');
+        Route::put('/vendors/{vendor}/promotions/{promotion}/approve', [PromotionController::class, 'approveSubscription'])->name('vendors.promotions.approve');
+        Route::put('/vendors/{vendor}/promotions/{promotion}/reject', [PromotionController::class, 'rejectSubscription'])->name('vendors.promotions.reject');
     });
 });
 
@@ -133,7 +133,7 @@ Route::prefix('product')->name('product.')->group(function () {
     Route::get('/{product}', [ProductController::class, 'show'])->name('show');
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [ProductController::class, 'store'])->name('store');
-        Route::put('/{product}', [ProductController::class, 'update'])->name('update');
+        Route::post('/{product}', [ProductController::class, 'update'])->name('update');
         Route::delete('/{product}', [ProductController::class, 'destroy'])->name('destroy');
     });
 });

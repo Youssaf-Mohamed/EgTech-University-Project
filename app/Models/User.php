@@ -120,6 +120,11 @@ class User extends Authenticatable implements HasMedia
         return $this->role === 'admin';
     }
 
+    public function isVendor(): bool
+    {
+        return $this->role === 'vendor';
+    }
+
     public function isActive(): bool
     {
         return $this->is_active;

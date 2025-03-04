@@ -16,9 +16,10 @@ class PromotionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'vendor_id' => $this->vendor_id,
+            'vendor_id' => $this->id,
             'promotion_amount' => $this->promotion_amount,
             'promotion_priority' => $this->promotion_priority,
+            'duration' => $this->duration,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
             'status' => $this->status,

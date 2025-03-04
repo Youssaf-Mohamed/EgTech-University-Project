@@ -8,7 +8,7 @@ class ProductStoreRequest extends FormRequest
 {
     public function authorize()
     {
-        return $this->user()->vendors()->exists();
+        return $this->user()->is_active;
     }
 
     public function rules()

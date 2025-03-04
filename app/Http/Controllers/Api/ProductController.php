@@ -107,9 +107,6 @@ class ProductController extends Controller
             $validatedData = $request->validated();
 
             $vendor = auth()->user()->vendors()->first();
-            if (!$vendor || $vendor->status !== 'active') {
-                return response()->json(['status' => false, 'message' => 'Vendor is not active'], Response::HTTP_BAD_REQUEST);
-            }
 
             $product = Product::create([
                 'vendor_id' => $vendor->id,
@@ -142,7 +139,7 @@ class ProductController extends Controller
                 'data' => new ProductResource($product->loadMissing(['details', 'categories'])),
             ]);
         } catch (AuthorizationException $e) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
+            return response()->json(['status' => false, 'message' => 'Unauthorized ' . $e->getMessage()], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
             return response()->json(
                 ['status' => false, 'message' => 'Internal Server Error'],
@@ -198,7 +195,7 @@ class ProductController extends Controller
                 'data' => new ProductResource($product->fresh()),
             ]);
         } catch (AuthorizationException $e) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
+            return response()->json(['status' => false, 'message' => 'Unauthorized'. $e->getMessage()], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
             return response()->json(
                 ['status' => false, 'message' => 'Internal Server Error'],

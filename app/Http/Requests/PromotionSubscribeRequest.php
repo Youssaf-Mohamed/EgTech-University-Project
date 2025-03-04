@@ -13,7 +13,7 @@ class PromotionSubscribeRequest extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()->vendors()->exists();
+        return true;
     }
 
     /**

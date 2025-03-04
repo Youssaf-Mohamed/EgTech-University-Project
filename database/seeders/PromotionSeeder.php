@@ -17,33 +17,33 @@ class PromotionSeeder extends Seeder
      */
     public function run(): void
     {
-        // Disable foreign key checks to prevent constraint issues
+        // تعطيل فحص العلاقات الخارجية مؤقتًا
         Schema::disableForeignKeyConstraints();
         DB::table('promotions')->truncate();
         DB::table('vendor_promotion')->truncate();
         Schema::enableForeignKeyConstraints();
 
-        // Create promotions
+        // إنشاء العروض الترويجية
         $promotions = [
             [
                 'name' => 'Discount 10%',
                 'promotion_amount' => 10.00,
                 'promotion_priority' => 1,
-                'duration' => Carbon::now()->addDays(30),
+                'duration' => 30, // عدد الأيام
                 'status' => 'active',
             ],
             [
                 'name' => 'Holiday Special',
                 'promotion_amount' => 15.50,
                 'promotion_priority' => 2,
-                'duration' => Carbon::now()->addDays(60),
+                'duration' => 60, // عدد الأيام
                 'status' => 'active',
             ],
             [
                 'name' => 'Summer Deal',
                 'promotion_amount' => 20.00,
                 'promotion_priority' => 3,
-                'duration' => Carbon::now()->addDays(45),
+                'duration' => 45, // عدد الأيام
                 'status' => 'inactive',
             ],
         ];
@@ -52,7 +52,6 @@ class PromotionSeeder extends Seeder
             Promotion::create($promotionData);
         }
 
-        // Fetch all vendors
         $vendors = Vendor::all();
 
         if ($vendors->isEmpty()) {
@@ -60,14 +59,16 @@ class PromotionSeeder extends Seeder
             return;
         }
 
-        // Assign promotions to vendors
-        $promotionIds = Promotion::pluck('id')->toArray();
+        $promotionIds = Promotion::pluck('id', 'duration')->toArray();
         foreach ($vendors as $vendor) {
+            $promotionId = array_rand($promotionIds);
+            $duration = $promotionIds[$promotionId];
+
             $vendor->promotions()->attach(
-                $promotionIds[array_rand($promotionIds)],
+                $promotionId,
                 [
                     'start_date' => Carbon::now(),
-                    'end_date' => Carbon::now()->addDays(30),
+                    'end_date' => Carbon::now()->addDays($duration),
                     'status' => 'pending',
                 ]
             );

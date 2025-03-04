@@ -10,7 +10,7 @@ class ProductDetailPolicy
 {
     public function create(User $user, Product $product): bool
     {
-        return $user->vendors()->where('id', $product->vendor_id)->exists();
+        return $user->vendors()->where('id', $product->vendor_id)->exists() || $user->isVendor();
     }
 
     public function update(User $user, ProductDetail $detail): bool

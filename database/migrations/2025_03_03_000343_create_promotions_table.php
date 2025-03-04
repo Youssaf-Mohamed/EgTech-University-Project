@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->decimal('promotion_amount', 8, 2)->nullable();
             $table->integer('promotion_priority')->default(0);
-            $table->date('duration');
-            $table->enum('status', ['active', 'inactive'])->default('active'); 
+            $table->integer('duration');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }

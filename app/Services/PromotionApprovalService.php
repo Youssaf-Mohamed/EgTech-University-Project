@@ -17,6 +17,7 @@ class PromotionApprovalService
         $pivot->update([
             'status' => 'approved',
             'start_date' => now(),
+            'end_date' => now()->addDays($pivot->duration),
         ]);
 
         $vendor = $pivot->vendor;
@@ -37,7 +38,7 @@ class PromotionApprovalService
             'status' => 'rejected',
         ]);
 
-        $vendor = $pivot->vendor; 
+        $vendor = $pivot->vendor;
         if ($vendor && $vendor->user) {
             $vendor->user->notify(new \App\Notifications\PromotionRejectedNotification($vendor, $pivot->promotion));
         }
