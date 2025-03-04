@@ -8,7 +8,7 @@ import 'package:my_app/providers/providers.dart';
 import 'package:my_app/widgets/TextDivider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();

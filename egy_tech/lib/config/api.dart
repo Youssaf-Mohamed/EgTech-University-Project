@@ -1,3 +1,3 @@
 class ApiConfig {
-  static const String baseUrl = "http://192.168.1.202:8000/api";
+  static const String baseUrl = "https://handmade.omeralgamel.xyz/index.php/api";
 }

@@ -29,6 +29,10 @@ class AuthService {
         await _databaseService.deleteToken(); // Delete existing token
         await _databaseService.saveToken(loginResponse.token); // Save token
         return loginResponse;
+      } else if (response.statusCode == 405) {
+        // Handle 405: Invalid token or permissions issue
+        await _databaseService.deleteToken(); // Delete invalid token
+        throw Exception('Token is invalid or expired, please log in again.');
       } else {
         throw Exception('Login failed: ${response.statusCode}');
       }
@@ -42,6 +46,9 @@ class AuthService {
     required String email,
     required String password,
     required String gender,
+    required String phone,
+    required String address,
+
     File? image,
   }) async {
     try {
@@ -51,6 +58,9 @@ class AuthService {
       request.fields['email'] = email;
       request.fields['password'] = password;
       request.fields['gender'] = gender;
+      request.fields['phone'] = phone;
+      request.fields['address'] = address;
+
       if (image != null) {
         request.files.add(
           await http.MultipartFile.fromPath(
@@ -65,8 +75,11 @@ class AuthService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final registerResponse =
             RegisterResponse.fromJson(jsonDecode(responseData));
-        await _databaseService.saveToken(registerResponse.token); // Save token
+        await _databaseService.saveToken(registerResponse.token);
         return registerResponse;
+      } else if (response.statusCode == 405) {
+        await _databaseService.deleteToken(); // Delete invalid token
+        throw Exception('Token is invalid or expired, please log in again.');
       } else {
         throw Exception(
             'Registration failed: ${response.statusCode} - $responseData');
@@ -95,6 +108,9 @@ class AuthService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final userData = jsonDecode(response.body);
         return User.fromJson(userData['data']);
+      } else if (response.statusCode == 405) {
+        await _databaseService.deleteToken();
+        throw Exception('Token is invalid or expired, please log in again.');
       } else {
         throw Exception('Failed to fetch user data: ${response.statusCode}');
       }

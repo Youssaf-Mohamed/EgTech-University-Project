@@ -117,6 +117,7 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                                     ),
                                     CircleAvatar(
                                       radius: 40,
+                                      // ignore: unnecessary_null_comparison
                                       backgroundImage: _user!.profilePicture != null
                                           ? NetworkImage(_user!.profilePicture)
                                           : const AssetImage('assets/images/default_profile.png')

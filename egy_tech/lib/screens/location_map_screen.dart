@@ -13,7 +13,7 @@ class LocationMapScreen extends StatefulWidget {
 
 class _LocationMapScreenState extends State<LocationMapScreen> {
   LatLng _currentPosition =
-      LatLng(37.7749, -122.4194); // Default location (San Francisco)
+      LatLng(37.7749, -122.4194); 
   MapController _mapController = MapController();
 
   @override

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:my_app/providers/providers.dart'; 
+// import 'package:my_app/providers/providers.dart'; 
 import 'package:my_app/screens/LocationScreen.dart';
 import 'package:my_app/screens/MyCollection.dart';
 import 'package:my_app/screens/collaborate_screen.dart';
@@ -48,8 +48,8 @@ class MyApp extends StatelessWidget {
         '/myprofile': (context) => MyProfile(),
         '/mycollection': (context) => MyCollection(),
         '/collaborate': (context) => CollaborateScreen(),
-        '/location': (context) => LocationScreen(),
-        '/LocationMapScreen': (context) => LocationMapScreen(),
+        // '/location': (context) => LocationScreen(),
+        // '/LocationMapScreen': (context) => LocationMapScreen(),
       },
       onGenerateRoute: (settings) {
         return MaterialPageRoute(

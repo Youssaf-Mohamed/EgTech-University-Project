@@ -30,6 +30,8 @@ class AuthRepository {
     required String email,
     required String password,
     required String gender,
+    required String phone,
+    required String address,
     File? image,
   }) async {
     return await _authService.register(
@@ -38,6 +40,8 @@ class AuthRepository {
       password: password,
       gender: gender,
       image: image,
+      address: address,
+      phone: phone
     );
   }
 
@@ -64,6 +68,6 @@ class AuthRepository {
   Future<void> deleteToken() async {
     await _databaseService.deleteToken();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('rememberMe'); // Clear "Remember Me" flag
+    await prefs.remove('rememberMe'); 
   }
 }
