@@ -68,6 +68,8 @@ flutter_icons:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  carousel_slider: ^4.2.1
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -89,6 +91,10 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/
+    - assets/general.jpg
+    - assets/pc1.jpg
+    - assets/pc2.jpg
+    - assets/pc3.jpg
 
 
   fonts:
