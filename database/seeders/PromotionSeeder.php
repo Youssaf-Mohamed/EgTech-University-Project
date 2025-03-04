@@ -3,75 +3,53 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Log;
 use App\Models\Promotion;
 use App\Models\Vendor;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class PromotionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        // تعطيل فحص العلاقات الخارجية مؤقتًا
-        Schema::disableForeignKeyConstraints();
-        DB::table('promotions')->truncate();
-        DB::table('vendor_promotion')->truncate();
-        Schema::enableForeignKeyConstraints();
-
-        // إنشاء العروض الترويجية
         $promotions = [
-            [
-                'name' => 'Discount 10%',
-                'promotion_amount' => 10.00,
-                'promotion_priority' => 1,
-                'duration' => 30, // عدد الأيام
-                'status' => 'active',
-            ],
-            [
-                'name' => 'Holiday Special',
-                'promotion_amount' => 15.50,
-                'promotion_priority' => 2,
-                'duration' => 60, // عدد الأيام
-                'status' => 'active',
-            ],
-            [
-                'name' => 'Summer Deal',
-                'promotion_amount' => 20.00,
-                'promotion_priority' => 3,
-                'duration' => 45, // عدد الأيام
-                'status' => 'inactive',
-            ],
+            ['name' => 'Super Sale', 'promotion_amount' => 20, 'promotion_priority' => 1, 'duration' => 30, 'status' => 'active'],
+            ['name' => 'Black Friday', 'promotion_amount' => 50, 'promotion_priority' => 2, 'duration' => 15, 'status' => 'active'],
+            ['name' => 'New Year Offer', 'promotion_amount' => 25, 'promotion_priority' => 3, 'duration' => 20, 'status' => 'active'],
+            ['name' => 'Holiday Special', 'promotion_amount' => 30, 'promotion_priority' => 2, 'duration' => 10, 'status' => 'active'],
         ];
 
-        foreach ($promotions as $promotionData) {
-            Promotion::create($promotionData);
+        foreach ($promotions as $promo) {
+            Promotion::create($promo);
         }
 
-        $vendors = Vendor::all();
+        $vendors = Vendor::pluck('id')->toArray();
+        $promotionIds = Promotion::pluck('id')->toArray();
 
-        if ($vendors->isEmpty()) {
-            Log::warning('No vendors found to assign promotions.');
+        if (empty($vendors) || empty($promotionIds)) {
+            $this->command->info('No vendors or promotions found.');
             return;
         }
 
-        $promotionIds = Promotion::pluck('id', 'duration')->toArray();
-        foreach ($vendors as $vendor) {
-            $promotionId = array_rand($promotionIds);
-            $duration = $promotionIds[$promotionId];
+        foreach ($vendors as $vendorId) {
+            $selectedPromotions = array_rand($promotionIds, 2);
 
-            $vendor->promotions()->attach(
-                $promotionId,
-                [
-                    'start_date' => Carbon::now(),
-                    'end_date' => Carbon::now()->addDays($duration),
-                    'status' => 'pending',
-                ]
-            );
+            foreach ($selectedPromotions as $index) {
+                $promotionId = $promotionIds[$index];
+
+                $startDate = Carbon::now()->subDays(rand(0, 10));
+                $endDate = $startDate->copy()->addDays(rand(5, 30));
+
+                DB::table('vendor_promotion')->insert([
+                    'vendor_id' => $vendorId,
+                    'promotion_id' => $promotionId,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'status' => 'approved',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
     }
 }

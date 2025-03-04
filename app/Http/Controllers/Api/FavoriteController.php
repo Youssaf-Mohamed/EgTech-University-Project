@@ -2,173 +2,89 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Product;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Auth\Access\AuthorizationException;
-use Exception;
-use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FavoriteController extends Controller
 {
     /*
     |==========================================
-    |> Add a product to user's favorites
+    |> Toggle a product in the user's favorites list.
     |==========================================
     */
-    public function add(Request $request, Product $product)
+    public function toggle(Product $product)
     {
-        try {
-            $user = auth()->user();
+        $user = Auth::user();
 
-            if ($user->favoriteProducts()->toggle($product)) {
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Product added to favorites successfully',
-                ]);
-            }
+        // Toggle the product in the user's favorites list
+        $user->favorites()->toggle($product);
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Product already in favorites',
-            ], Response::HTTP_BAD_REQUEST);
-        } catch (AuthorizationException $e) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
-        } catch (Exception $e) {
-            return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+        // Check if the product is currently favorited by the user
+        $isFavorited = $user->favorites()->where('product_id', $product->id)->exists();
+
+        return response()->json([
+            'status' => true,
+            'message' => $isFavorited ? 'Product added to favorites.' : 'Product removed from favorites.',
+            'data' => [
+                'is_favorited' => $isFavorited,
+            ],
+        ]);
     }
 
     /*
     |==========================================
-    |> Remove a product from user's favorites
+    |> Remove a product from the user's favorites list.
     |==========================================
     */
-    public function remove(Request $request, Product $product)
+    public function remove(Product $product)
     {
-        try {
-            $user = auth()->user();
+        $user = Auth::user();
 
-            if ($user->favoriteProducts()->detach($product)) {
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Product removed from favorites successfully',
-                ]);
-            }
-
-            return response()->json([
-                'status' => false,
-                'message' => 'Product not found in favorites',
-            ], Response::HTTP_BAD_REQUEST);
-        } catch (AuthorizationException $e) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
-        } catch (Exception $e) {
-            return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
-    }
-
-    /*
-    |==========================================
-    |> Get all favorite products of the authenticated user
-    |==========================================
-    */
-    public function index(Request $request)
-    {
-        try {
-            $user = auth()->user();
-
-            $query = $user->favoriteProducts();
-
-            if ($request->has('search')) {
-                $query->where('product_name', 'LIKE', "%{$request->search}%");
-            }
-
-            if ($request->has('price_range')) {
-                [$minPrice, $maxPrice] = explode(',', $request->price_range);
-                $query->whereHas('details', function ($q) use ($minPrice, $maxPrice) {
-                    $q->whereBetween('price', [(float)$minPrice, (float)$maxPrice]);
-                });
-            }
-
-            if ($request->has('sort_by')) {
-                switch ($request->sort_by) {
-                    case 'latest':
-                        $query->orderByDesc('created_at');
-                        break;
-                    case 'lowest_price':
-                        $query->whereHas('details', function ($q) {
-                            $q->orderBy('price');
-                        })->withMax('details', 'price');
-                        break;
-                    case 'highest_price':
-                        $query->whereHas('details', function ($q) {
-                            $q->orderByDesc('price');
-                        })->withMax('details', 'price');
-                        break;
-                }
-            }
-
-            $cacheKey = 'user_favorites_' . $user->id . '_' . md5(json_encode($request->all()));
-
-            if (Cache::has($cacheKey)) {
-                $products = Cache::get($cacheKey);
-            } else {
-                $products = $query->paginate();
-                Cache::put($cacheKey, $products, now()->addMinutes(5));
-            }
-
+        if ($user->favorites()->detach($product)) {
             return response()->json([
                 'status' => true,
-                'data' => \App\Http\Resources\ProductResource::collection($products),
-                'pagination' => [
-                    'total' => $products->total(),
-                    'per_page' => $products->perPage(),
-                    'current_page' => $products->currentPage(),
-                    'last_page' => $products->lastPage(),
-                ],
+                'message' => 'Product removed from favorites.',
             ]);
-        } catch (AuthorizationException $e) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
-        } catch (Exception $e) {
-            return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
         }
+
+        return response()->json(['status' => false, 'message' => 'Failed to remove from favorites.'], 500);
     }
 
     /*
     |==========================================
-    |> Check if a product is in user's favorites
+    |> Get all favorite products for the authenticated user.
     |==========================================
     */
-    public function check(Request $request, Product $product)
+    public function index()
     {
-        try {
-            $user = auth()->user();
+        $user = Auth::user();
+        $favoriteProducts = $user->favorites;
 
-            $isFavorited = $user->favoriteProducts()->where('product_id', $product->id)->exists();
+        return response()->json([
+            'status' => true,
+            'data' => $favoriteProducts,
+        ]);
+    }
 
-            return response()->json([
-                'status' => true,
-                'data' => [
-                    'is_favorited' => $isFavorited,
-                ],
-            ]);
-        } catch (AuthorizationException $e) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized'], Response::HTTP_FORBIDDEN);
-        } catch (Exception $e) {
-            return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+    /*
+    |==========================================
+    |> Check if a product is favorited by the authenticated user.
+    |==========================================
+    */
+    public function check(Product $product)
+    {
+        $user = Auth::user();
+
+        $isFavorited = $user->favorites()->where('product_id', $product->id)->exists();
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'is_favorited' => $isFavorited,
+            ],
+        ]);
     }
 }

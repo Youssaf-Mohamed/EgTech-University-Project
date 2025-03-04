@@ -17,7 +17,7 @@ class Product extends Model
      */
     public function categories()
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class, 'category_product');
     }
 
     /**
@@ -45,6 +45,11 @@ class Product extends Model
 
     public function getAverageRatingAttribute()
     {
-        return $this->reviews()->avg('rating') ?? 0; 
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites', 'product_id', 'user_id');
     }
 }

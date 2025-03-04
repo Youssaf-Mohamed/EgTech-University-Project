@@ -46,10 +46,10 @@ Route::get('/verify/{token}', [UserController::class, 'verifyAccount'])->name('v
 |> Vendor Management Routes (Protected)
 |===================================================================
 */
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::prefix('vendor')->as('vendor.')->group(function () {
+Route::prefix('vendor')->as('vendor.')->group(function () {
+    Route::get('/', [VendorController::class, 'publicIndex'])->name('public.index');
+        Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/trashed', [VendorController::class, 'trashedVendors'])->name('trashed-vendors');
-        Route::get('/', [VendorController::class, 'publicIndex'])->name('public.index');
         Route::post('/', [VendorController::class, 'store'])->name('store');
         Route::get('/{vendor}', [VendorController::class, 'show'])->name('show');
         Route::post('/{vendor}', [VendorController::class, 'update'])->name('update');
@@ -60,9 +60,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::post('/{id}/restore', [VendorController::class, 'restore'])->name('restore');
     });
-
-    Route::get('/dashboard/vendor', [VendorController::class, 'index'])->name('vendor.index');
 });
+Route::get('/dashboard/vendor', [VendorController::class, 'index'])->name('vendor.index')->middleware('auth:sanctum');
 
 /*
 |===================================================================
@@ -148,7 +147,7 @@ Route::prefix('product/{product}/details')->name('product.details.')->group(func
     Route::get('/{detail}', [ProductDetailController::class, 'show'])->name('show');
         Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [ProductDetailController::class, 'store'])->name('store');
-        Route::put('/{detail}', [ProductDetailController::class, 'update'])->name('update');
+        Route::post('/{detail}', [ProductDetailController::class, 'update'])->name('update');
         Route::delete('/{detail}', [ProductDetailController::class, 'destroy'])->name('destroy');
     });
 });
@@ -160,7 +159,7 @@ Route::prefix('product/{product}/details')->name('product.details.')->group(func
 */
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('favorite')->name('favorite.')->group(function () {
-        Route::post('/add/{product}', [FavoriteController::class, 'add'])->name('add');
+        Route::post('/toggle/{product}', [FavoriteController::class, 'toggle'])->name('toggle');
         Route::delete('/remove/{product}', [FavoriteController::class, 'remove'])->name('remove');
         Route::get('/', [FavoriteController::class, 'index'])->name('index');
         Route::get('/check/{product}', [FavoriteController::class, 'check'])->name('check');
@@ -176,7 +175,7 @@ Route::prefix('product/{product}/reviews')->name('product.reviews.')->group(func
     Route::get('/', [ReviewController::class, 'index'])->name('index');
         Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [ReviewController::class, 'store'])->name('store');
-        Route::put('/{review}', [ReviewController::class, 'update'])->name('update');
+        Route::post('/{review}', [ReviewController::class, 'update'])->name('update');
         Route::delete('/{review}', [ReviewController::class, 'destroy'])->name('destroy');
     });
 });
@@ -200,3 +199,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('markAsRead');
     });
 });
+
+require __DIR__ . '/test.php';

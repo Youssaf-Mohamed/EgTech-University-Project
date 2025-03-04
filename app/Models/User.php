@@ -82,10 +82,15 @@ class User extends Authenticatable implements HasMedia
         return $this->belongsToMany(Vendor::class, 'follows', 'user_id', 'vendor_id');
     }
 
-    public function favoriteProducts()
+    public function favorites()
     {
-        return $this->belongsToMany(Product::class, 'favorites');
+        return $this->belongsToMany(Product::class, 'favorites', 'user_id', 'product_id');
     }
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
 
     /**
      * Register media collections for the user.

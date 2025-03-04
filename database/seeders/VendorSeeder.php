@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Vendor;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 
 class VendorSeeder extends Seeder
 {
@@ -12,33 +12,43 @@ class VendorSeeder extends Seeder
     {
         $vendors = [
             [
-                'brand_name' => 'Tech Solutions',
-                'image' => null,
-                'description' => 'Leading provider of tech services',
-                'phone' => '0123456789',
+                'brand_name' => 'Vendor One',
+                'description' => 'This is the first vendor.',
+                'phone' => '1234567890',
                 'status' => 'active',
             ],
             [
-                'brand_name' => 'Fashion Hub',
-                'image' => null,
-                'description' => 'Trendy fashion store',
+                'brand_name' => 'Vendor Two',
+                'description' => 'This is the second vendor.',
                 'phone' => '0987654321',
                 'status' => 'pending',
             ],
             [
-                'brand_name' => 'Home Essentials',
-                'image' => null,
-                'description' => 'Best home products',
-                'phone' => '01122334455',
-                'status' => 'inactive',
-            ]
+                'brand_name' => 'Vendor Three',
+                'description' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident laudantium ducimus consequatur laborum. Possimus suscipit quo at culpa perferendis accusamus! Ea modi est pariatur laudantium commodi exercitationem aut, quidem eius.',
+                'phone' => '0987654321',
+                'status' => 'pending',
+            ],
+            [
+                'brand_name' => 'Vendor Four',
+                'description' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident laudantium ducimus consequatur laborum. Possimus suscipit quo at culpa perferendis accusamus! Ea modi est pariatur laudantium commodi exercitationem aut, quidem eius.',
+                'phone' => '0987654321',
+                'status' => 'pending',
+            ],
+            [
+                'brand_name' => 'Vendor Five',
+                'description' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident laudantium ducimus consequatur laborum. Possimus suscipit quo at culpa perferendis accusamus! Ea modi est pariatur laudantium commodi exercitationem aut, quidem eius.',
+                'phone' => '0987654321',
+                'status' => 'pending',
+            ],
         ];
 
         foreach ($vendors as $vendorData) {
             $vendor = Vendor::create($vendorData);
 
-            $regionIds = DB::table('regions')->pluck('id')->take(4)->toArray();
-            $vendor->regions()->sync($regionIds);
+            $vendor->addMedia(public_path('images/vendor-placeholder.jpg'))
+                ->preservingOriginal()
+                ->toMediaCollection('vendor_images');
         }
     }
 }

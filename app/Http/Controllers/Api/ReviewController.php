@@ -91,7 +91,7 @@ class ReviewController extends Controller
             ]);
         } catch (Exception $e) {
             return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
+                ['status' => false, 'message' => 'Internal Server Error'. $e->getMessage()],
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }

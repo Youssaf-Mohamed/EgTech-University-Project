@@ -142,7 +142,7 @@ class ProductController extends Controller
             return response()->json(['status' => false, 'message' => 'Unauthorized ' . $e->getMessage()], Response::HTTP_FORBIDDEN);
         } catch (Exception $e) {
             return response()->json(
-                ['status' => false, 'message' => 'Internal Server Error'],
+                ['status' => false, 'message' => 'Internal Server Error'. $e->getMessage()],
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
