@@ -236,7 +236,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/');
+                    },
                     child: const Text("Continue as Guest", style: TextStyle(color: Colors.red)),
                   ),
                 ),

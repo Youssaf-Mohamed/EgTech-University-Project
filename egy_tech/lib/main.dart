@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         '/walkthrough': (context) => const Walkthrough(),
         '/login': (context) =>  LoginScreen(),
         '/signup': (context) => RegisterScreen(),
-        '/': (context) => UserScreen(),
+        '/': (context) => MainScreen(),
         '/myprofile': (context) => MyProfile(),
         '/mycollection': (context) => MyCollection(),
         '/collaborate': (context) => CollaborateScreen(),
