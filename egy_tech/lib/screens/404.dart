@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class NotFoundPage extends StatelessWidget {
+  const NotFoundPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -8,8 +10,7 @@ class NotFoundPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment
-              .spaceBetween, // This will push the button to the bottom
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: Column(
@@ -27,27 +28,23 @@ class NotFoundPage extends StatelessWidget {
                     'This page doesn’t exist or maybe fall asleep! We suggest you back to home',
                     style: TextStyle(
                       fontSize: 14,
-                      color:
-                          Colors.grey, // Change the color to your desired color
+                      color: Colors.grey,
                     ),
-                    textAlign: TextAlign
-                        .center, // Center the text horizontally within the Text widget
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
             ElevatedButton(
               onPressed: () {
-                // Navigate back to the home page or any other page
-                Navigator.pushReplacementNamed(context, '/');
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/', (route) => false);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    Colors.red[700], // Set the background color to red
-                minimumSize: const Size(
-                    double.infinity, 60), // Full width and height of 50
+                backgroundColor: Colors.red[700],
+                minimumSize: const Size(double.infinity, 60),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // Set border radius
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               child: const Text(

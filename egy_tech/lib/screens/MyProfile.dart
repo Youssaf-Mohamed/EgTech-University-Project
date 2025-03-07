@@ -1,11 +1,10 @@
 // lib/screens/MyProfile.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Riverpod import
-import 'package:my_app/objects/User.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; 
+import 'package:my_app/models/User.dart';
 import 'package:my_app/services/AuthService.dart';
-import 'package:my_app/widgets/custom_bottom_nav.dart';
 import 'package:my_app/widgets/profile_option_tile.dart';
-import 'package:my_app/providers/providers.dart'; // Import your providers
+import 'package:my_app/providers/providers.dart'; 
 
 class MyProfile extends ConsumerStatefulWidget {
   const MyProfile({Key? key}) : super(key: key);
@@ -62,36 +61,11 @@ class _MyProfileState extends ConsumerState<MyProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            fontFamily: 'Satoshi',
-            fontSize: 17,
-            fontWeight: FontWeight.normal,
-            color: Colors.black,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.favorite_border, color: Colors.black),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: _isLoading
+    return Container(
+      child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text('Error: $_error'))
+              ? NotLoggedIn()
               : _user == null
                   ? const Center(child: Text('No user data found'))
                   : Container(
@@ -118,9 +92,11 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                                     CircleAvatar(
                                       radius: 40,
                                       // ignore: unnecessary_null_comparison
-                                      backgroundImage: _user!.profilePicture != null
+                                      backgroundImage: _user!.profilePicture !=
+                                              null
                                           ? NetworkImage(_user!.profilePicture)
-                                          : const AssetImage('assets/images/default_profile.png')
+                                          : const AssetImage(
+                                                  'assets/images/default_profile.png')
                                               as ImageProvider,
                                     ),
                                   ],
@@ -171,7 +147,8 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                                           "Check your project status (customize, track, return, cancel, etc.)",
                                       icon: Icons.groups,
                                       onTap: () {
-                                        Navigator.pushNamed(context, "/projects");
+                                        Navigator.pushNamed(
+                                            context, "/projects");
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -180,7 +157,8 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                                           "Buy or collaborate from items and makers saved in Wishlist",
                                       icon: Icons.favorite_border,
                                       onTap: () {
-                                        Navigator.pushNamed(context, "/Wishlist");
+                                        Navigator.pushNamed(
+                                            context, "/Wishlist");
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -189,7 +167,8 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                                           "Browse through interesting Artisan & Designer Profiles",
                                       icon: Icons.person_add_alt,
                                       onTap: () {
-                                        Navigator.pushNamed(context, "/following");
+                                        Navigator.pushNamed(
+                                            context, "/following");
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -198,7 +177,8 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                                           "Save and refer your collections, crafts, and craftspeople",
                                       icon: Icons.bookmark_border,
                                       onTap: () {
-                                        Navigator.pushNamed(context, "/mycollection");
+                                        Navigator.pushNamed(
+                                            context, "/mycollection");
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -207,7 +187,8 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                                           "Browse coupons to get discounts on HandmadeHive",
                                       icon: Icons.discount_outlined,
                                       onTap: () {
-                                        Navigator.pushNamed(context, "/coupons");
+                                        Navigator.pushNamed(
+                                            context, "/coupons");
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -244,9 +225,107 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                         ),
                       ),
                     ),
-      bottomNavigationBar: CustomBottomNavBar(
-        selectedIndex: 4,
-        onItemTapped: (index) {},
+    );
+  }
+}
+
+class NotLoggedIn extends StatelessWidget {
+  const NotLoggedIn({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/icons/not_reg.png',
+              width: 400,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              "It looks like you don't have an account yet!",
+              style: TextStyle(
+                fontFamily: 'Satoshi',
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              "Join us today and explore a world of handmade wonders. Sign up now to enjoy a personalized experience!",
+              style: TextStyle(
+                fontFamily: 'Satoshi',
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, "/signup");
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[700],
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                "Join Now",
+                style: TextStyle(
+                  fontFamily: 'Satoshi',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                DefaultTextStyle(
+                  style: const TextStyle(fontSize: 16, color: Colors.black),
+                  child: Row(
+                    children: [
+                      const Text("or "),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacementNamed(context, "/login");
+                          },
+                          child: Text(
+                            "sign in",
+                            style: TextStyle(
+                              color: Colors
+                                  .red[700], // Change color for sign-in text
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const Text(" if you already have an account"),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

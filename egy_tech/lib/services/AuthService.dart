@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:my_app/config/api.dart';
-import 'package:my_app/models/LoginResponse.dart';
-import 'package:my_app/models/RegisterResponse.dart';
+import 'package:my_app/responses/LoginResponse.dart';
+import 'package:my_app/responses/RegisterResponse.dart';
 import 'package:my_app/config/database_service.dart';
-import 'package:my_app/objects/User.dart';
+import 'package:my_app/models/User.dart';
 
 class AuthService {
   final String _baseUrl = ApiConfig.baseUrl;

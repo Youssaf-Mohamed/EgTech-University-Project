@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/objects/User.dart';
+import 'package:my_app/models/User.dart';
 import 'package:my_app/services/AuthService.dart';
 import 'package:my_app/widgets/custom_bottom_nav.dart';
 

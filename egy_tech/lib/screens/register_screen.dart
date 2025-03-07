@@ -1,11 +1,11 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:my_app/models/RegisterResponse.dart';
+import 'package:my_app/responses/RegisterResponse.dart';
 import 'package:my_app/providers/providers.dart';
 import 'package:my_app/widgets/LocationPickerDialog.dart';
 
@@ -171,7 +171,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: const [
                   Text(
                     "Welcome to EgyTech!",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
@@ -500,7 +500,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           const Text("Already have an account?"),
                           TextButton(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/login');
+                              Navigator.pushReplacementNamed(context, '/login');
                             },
                             child: Text("Login",
                                 style: TextStyle(color: Colors.red[700])),

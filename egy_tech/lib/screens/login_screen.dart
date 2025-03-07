@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:my_app/models/LoginResponse.dart';
+import 'package:my_app/responses/LoginResponse.dart';
 import 'package:my_app/providers/providers.dart'; 
 import 'package:my_app/widgets/TextDivider.dart';
+
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -61,7 +64,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final authRepository = ref.read(authRepositoryProvider);
       LoginResponse response = await authRepository.login(email, password, isChecked);
       if (response.status) {
-        Navigator.pushReplacementNamed(context, '/');
+        Navigator.pushNamed(context, '/');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login successful')),
         );
@@ -197,7 +200,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         const Text("Don't have an account?"),
                         TextButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/signup');
+                            Navigator.pushReplacementNamed(context, '/signup');
                           },
                           child: const Text("Sign Up", style: TextStyle(color: Colors.red)),
                         ),
@@ -237,7 +240,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   alignment: Alignment.bottomCenter,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/');
+                      Navigator.pushNamed(context, '/');
                     },
                     child: const Text("Continue as Guest", style: TextStyle(color: Colors.red)),
                   ),

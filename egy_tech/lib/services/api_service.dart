@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:my_app/config/api.dart';
 import 'package:my_app/config/database_service.dart';
 // import 'package:my_app/models/LoginResponse.dart';
-import 'package:my_app/objects/User.dart';
+import 'package:my_app/models/User.dart';
 
 class ApiService {
   final String _baseUrl = ApiConfig.baseUrl;

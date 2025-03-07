@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:my_app/models/LoginResponse.dart' as login_response;
-import 'package:my_app/models/RegisterResponse.dart' as register_response;
+import 'package:my_app/responses/LoginResponse.dart' as login_response;
+import 'package:my_app/responses/RegisterResponse.dart' as register_response;
 import 'package:my_app/services/authService.dart';
 import 'package:my_app/config/database_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';

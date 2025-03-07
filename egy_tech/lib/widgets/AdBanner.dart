@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class AdBanner extends StatefulWidget {
   const AdBanner({super.key});
@@ -63,7 +62,7 @@ class _AdBannerState extends State<AdBanner> {
                 ),
                 child: Row(
                   children: [
-                    Container(
+                    SizedBox(
                       width: screenWidth * 0.5,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,

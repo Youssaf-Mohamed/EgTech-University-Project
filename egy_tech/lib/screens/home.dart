@@ -1,185 +1,214 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/models/category.dart';
+import 'package:my_app/models/products.dart';
+
 import 'package:my_app/widgets/AdBanner.dart';
-import 'package:my_app/widgets/MainAppBar.dart';
-import 'package:my_app/widgets/SearchBar.dart';
-import 'package:my_app/widgets/custom_appbar.dart';
-import 'package:my_app/widgets/custom_bottom_nav.dart';
+import 'package:my_app/widgets/CardSlider.dart';
+import 'package:my_app/widgets/CustomListView.dart';
+import 'package:my_app/config/Constants.dart';
+import 'package:my_app/providers/home_data_provider.dart';
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class HomeScreen extends ConsumerStatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
-  List<Map<String, String>> getCategory() {
-    return [
-      {"name": "Artisan", "image": "assets/images/main_testing/artist.png"},
-      {"name": "Designer", "image": "assets/images/main_testing/designer.png"},
-      {"name": "Crafts", "image": "assets/images/main_testing/crafts.png"},
-      {"name": "Products", "image": "assets/images/main_testing/products.png"},
-      {"name": "Workshop", "image": "assets/images/main_testing/workshop.png"},
-      {"name": "Events", "image": "assets/images/main_testing/events.png"},
-    ];
-  }
+  // Sample static category list.
+  // List<Map<String, String>> getCategory() {
+  //   return [
+  //     {"name": "Artisan", "image": "assets/images/main_testing/artist.png"},
+  //     {"name": "Designer", "image": "assets/images/main_testing/designer.png"},
+  //     {"name": "Crafts", "image": "assets/images/main_testing/crafts.png"},
+  //     {"name": "Products", "image": "assets/images/main_testing/products.png"},
+  //     {"name": "Workshop", "image": "assets/images/main_testing/workshop.png"},
+  //     {"name": "Events", "image": "assets/images/main_testing/events.png"},
+  //   ];
+  // }
+
+  // Sample static card list.
+  // List<Map<String, String>> getCardItem() {
+  //   return [
+  //     {
+  //       "product_name": "Khavda Pottery",
+  //       "product_image":
+  //           "https://th.bing.com/th/id/R.27cf23f37d3fe1fa0dd5db0da76126f9?rik=gzJrE3yP9ejKbw&pid=ImgRaw&r=0",
+  //       "vendor_image":
+  //           "https://i.ibb.co/B5qQFMzq/WIN-20250128-14-29-18-Pro.jpg",
+  //       "price": "346.00",
+  //       "discount": "20%"
+  //     },
+  //     {
+  //       "product_name": "Handmade Vase",
+  //       "product_image":
+  //           "https://th.bing.com/th/id/OIP.y92FBzeshMp7q1gs7wR4LwHaE7?rs=1&pid=ImgDetMain",
+  //       "vendor_image":
+  //           "https://i.ibb.co/B5qQFMzq/WIN-20250128-14-29-18-Pro.jpg",
+  //       "price": "400.00",
+  //       "discount": "10%"
+  //     },
+  //     {
+  //       "product_name": "Decor Pot",
+  //       "product_image":
+  //           "https://th.bing.com/th/id/OIP._LUrmB7Hnxk_hD6XYrL7ggHaIW?w=794&h=895&rs=1&pid=ImgDetMain",
+  //       "vendor_image":
+  //           "https://i.ibb.co/B5qQFMzq/WIN-20250128-14-29-18-Pro.jpg",
+  //       "price": "250.00",
+  //       "discount": "15%"
+  //     }
+  //   ];
+  // }
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    final Category = widget.getCategory();
+    final homeDataAsync = ref.watch(homeDataProvider);
+
     return Scaffold(
-      extendBodyBehindAppBar: false,
-      backgroundColor: Colors.white,
-      appBar: CustomAppBar(),
-      body: Container(
-        color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SingleChildScrollView(
-              child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.symmetric(vertical: 5),
-                  itemCount: Category.length * 2,
-                  itemBuilder: (context, index) {
-                    final cat = Category[index % Category.length];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Container(
-                        width: 130,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              spreadRadius: 1,
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6),
-                              child: Image.asset(
-                                cat["image"]!,
-                                width: 120,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              cat["name"]!,
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w500),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              AdBanner(),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-                height: 280,
+      body: homeDataAsync.when(
+        data: (apiResponse) {
+          final products = apiResponse.data.mostDemanded;
+          final categories = apiResponse.data.categories;
+
+          final List<Map<String, String>> mappedCategories =
+              (categories as List<Category>)
+                  .map((Category cat) => <String, String>{
+                        "name": cat.name,
+                        "image": cat.image,
+                      })
+                  .toList();
+
+          final List<Map<String, String>> mappedProducts =
+              (products as List<MostDemandedProduct>)
+                  .map((MostDemandedProduct prod) => <String, String>{
+                        "product_name": prod.productName,
+                        "product_image": prod.productImage,
+                        "vendor_image": prod.vendorImage,
+                        "price": prod.price,
+                        "discount": prod.discount,
+                      })
+                  .toList();
+
+          return Container(
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Image Stack
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Stack(
-                          clipBehavior: Clip.hardEdge,
-                          children: [
-                            // Background Image
-                            Positioned.fill(
-                              child: Image.asset(
-                                'assets/images/main_testing/featured.png', // Add your background image
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-
-                            Positioned(
-                              top: 20,
-                              right: 0,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 7, vertical: 5),
-                                decoration: BoxDecoration(
-                                    color: const Color.fromARGB(
-                                        160, 158, 158, 158),
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(20),
-                                        bottomLeft: Radius.circular(20))),
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                        width: 20,
-                                        child: Image.asset(
-                                            "assets/icons/IconLogo.png")),
-                                    SizedBox(width: 5),
-                                    Text(
-                                      "New In",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            Positioned(
-                                bottom: 0,
-                                right: 0,
-                                left: 0,
-                                child: Container(
-                                    height: 60,
-                                    color: const Color.fromARGB(163, 0, 0, 0),
-                                    child: Center(
-                                        child: Text(
-                                      "Tribal Lambani Jewellery",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Satoshi',
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500),
-                                    ))))
-                          ],
-                        ),
-                      ),
+                    CustomListView(list: mappedCategories),
+                    const SizedBox(height: 20),
+                    const AdBanner(),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Featured",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'Satoshi',
+                          fontSize: 19.2,
+                          fontWeight: FontWeight.bold),
                     ),
-
-                    // Bottom Text Label
+                    const SizedBox(height: 15),
+                    const Featured(),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Trending Product",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'Satoshi',
+                          fontSize: 19.2,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 15),
+                    CardSlider(Cardlist: mappedProducts),
                   ],
                 ),
-              )
-            ],
-          )),
-        ),
+              ),
+            ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text("Error: $error")),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        selectedIndex: 0,
-        onItemTapped: (index) {},
+    );
+  }
+}
+
+class Featured extends StatelessWidget {
+  const Featured({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+      height: 280,
+      child: Column(
+        children: [
+          // Image Stack
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Stack(
+                clipBehavior: Clip.hardEdge,
+                children: [
+                  // Background Image
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/main_testing/featured.png', // Background image
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned(
+                    top: 20,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 7, vertical: 5),
+                      decoration: const BoxDecoration(
+                          color: Color.fromARGB(160, 158, 158, 158),
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              bottomLeft: Radius.circular(20))),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                              width: 20,
+                              child: Image.asset(Constants.IconLogo)),
+                          const SizedBox(width: 5),
+                          const Text(
+                            "New In",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    left: 0,
+                    child: Container(
+                      height: 60,
+                      color: const Color.fromARGB(163, 0, 0, 0),
+                      child: const Center(
+                          child: Text(
+                        "Tribal Lambani Jewellery",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Satoshi',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500),
+                      )),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

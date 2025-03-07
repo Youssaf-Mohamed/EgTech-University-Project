@@ -1,4 +1,4 @@
-import 'package:my_app/objects/User.dart';
+import 'package:my_app/models/User.dart';
 
 class RegisterResponse {
   final bool status;
