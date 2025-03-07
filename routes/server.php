@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use App\Http\Controllers\MediaController;
+use Illuminate\Support\Facades\File;
 
 Route::get('/reset-database', function () {
     try {
@@ -46,3 +47,43 @@ Route::get('/start-queue', function () {
 
 Route::get('/clear-media', [MediaController::class, 'clearMedia'])->name('clear.media');
 Route::get('/cleanup-unused-files', [MediaController::class, 'cleanupOrphanedFiles'])->name('cleanup.unused.files');
+
+
+Route::post('/storage-link', function () {
+    try {
+        Artisan::call('storage:link');
+
+        return response()->json([
+            'message' => 'Storage link created successfully!',
+            'output' => Artisan::output()
+        ], Response::HTTP_OK);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Error creating storage link!',
+            'error' => $e->getMessage()
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+});
+
+Route::get('/reset-storage-link', function () {
+    try {
+        // 1. حذف الرابط الرمزي الحالي إذا كان موجودًا
+        $storagePath = public_path('storage');
+        if (File::exists($storagePath)) {
+            File::deleteDirectory($storagePath);
+        }
+
+        // 2. إعادة إنشاء الرابط الرمزي
+        Artisan::call('storage:link');
+
+        return response()->json([
+            'message' => 'Storage link reset and created successfully!',
+            'output' => Artisan::output()
+        ], Response::HTTP_OK);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Error resetting storage link!',
+            'error' => $e->getMessage()
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+});

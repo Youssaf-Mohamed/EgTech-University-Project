@@ -21,7 +21,9 @@ class HomeController extends Controller
     {
         try {
             return Cache::remember('most_demanded_products', now()->addMinutes(10), function () {
-                return Product::with(['details', 'vendor'])
+                return Product::with(['details' => function ($query) {
+                    $query->select('id', 'product_id', 'price', 'discount');
+                }, 'vendor:id,brand_name'])
                     ->whereHas('vendor.promotions', function ($query) {
                         $query->where('promotions.status', 'active');
                     })
@@ -31,7 +33,20 @@ class HomeController extends Controller
                             ->whereColumn('reviews.product_id', 'products.id');
                     })
                     ->limit(10)
-                    ->get();
+                    ->get()
+                    ->map(function ($product) {
+                        return [
+                            'product_id' => $product->id,
+                            'product_name' => $product->product_name,
+                            'description' => $product->description,
+                            'product_image' => $product->details->first()?->getImageUrl() ?? asset('images/product-placeholder.jpg'),
+                            'vendor_image' => $product->vendor?->getImageUrl() ?? asset('images/vendor-placeholder.jpg'),
+                            'details_id' => $product->details->first()?->id,
+                            'price' => $product->details->first()?->price,
+                            'discount' => $product->details->first()?->discount,
+                            'brand_name' => $product->vendor?->brand_name,
+                        ];
+                    });
             });
         } catch (Exception $e) {
             return response()->json(
@@ -51,11 +66,31 @@ class HomeController extends Controller
         try {
             return Cache::remember('important_categories', now()->addMinutes(10), function () {
                 return Category::with(['products' => function ($query) {
-                    $query->orderByDesc('created_at')->limit(4);
+                    $query->orderByDesc('created_at')->limit(4)
+                        ->with(['details' => function ($q) {
+                            $q->select('id', 'product_id', 'price', 'discount');
+                        }]);
                 }])
                     ->has('products')
                     ->limit(5)
-                    ->get();
+                    ->get()
+                    ->map(function ($category) {
+                        return [
+                            'id' => $category->id,
+                            'category_name' => $category->category_name,
+                            'description' => $category->description,
+                            'category_image' => $category->getImageUrl(),
+                            'products' => $category->products->map(function ($product) {
+                                return [
+                                    'product_id' => $product->id,
+                                    'product_name' => $product->product_name,
+                                    'product_image' => $product->details->first()?->getImageUrl() ?? asset('images/product-placeholder.jpg'),
+                                    'price' => $product->details->first()?->price,
+                                    'discount' => $product->details->first()?->discount,
+                                ];
+                            }),
+                        ];
+                    });
             });
         } catch (Exception $e) {
             return response()->json(
@@ -64,7 +99,6 @@ class HomeController extends Controller
             );
         }
     }
-
     /*
     |==========================================
     |> Get promoted products
@@ -74,13 +108,27 @@ class HomeController extends Controller
     {
         try {
             return Cache::remember('promoted_products', now()->addMinutes(10), function () {
-                return Product::with(['details', 'vendor'])
+                return Product::with(['details' => function ($query) {
+                    $query->select('id', 'product_id', 'price', 'discount');
+                }, 'vendor:id,brand_name'])
                     ->whereHas('vendor.promotions', function ($query) {
-                        $query->where('vendor_promotion.status', 'approved') // تحديد الجدول vendor_promotion
+                        $query->where('vendor_promotion.status', 'approved')
                             ->whereDate('vendor_promotion.start_date', '<=', now())
                             ->whereDate('vendor_promotion.end_date', '>=', now());
                     })
-                    ->get();
+                    ->get()
+                    ->map(function ($product) {
+                        return [
+                            'product_id' => $product->id,
+                            'product_name' => $product->product_name,
+                            'product_image' => $product->details->first()?->getImageUrl() ?? asset('images/product-placeholder.jpg'),
+                            'description' => $product->description,
+                            'details_id' => $product->details->first()?->id,
+                            'price' => $product->details->first()?->price,
+                            'discount' => $product->details->first()?->discount,
+                            'brand_name' => $product->vendor?->brand_name,
+                        ];
+                    });
             });
         } catch (Exception $e) {
             return response()->json(
@@ -108,7 +156,9 @@ class HomeController extends Controller
             $userId = Auth::id();
 
             return Cache::remember("followed_vendors_latest_products_{$userId}", now()->addMinutes(10), function () use ($userId) {
-                return Product::with('vendor')
+                return Product::with(['details' => function ($query) {
+                    $query->select('id', 'product_id', 'price', 'discount');
+                }, 'vendor:id,brand_name'])
                     ->whereIn('vendor_id', function ($query) use ($userId) {
                         $query->select('vendor_id')
                             ->from('follows')
@@ -116,7 +166,17 @@ class HomeController extends Controller
                     })
                     ->orderByDesc('created_at')
                     ->limit(10)
-                    ->get();
+                    ->get()
+                    ->map(function ($product) {
+                        return [
+                            'product_id' => $product->id,
+                            'product_name' => $product->product_name,
+                            'product_image' => $product->details->first()?->getImageUrl() ?? asset('images/product-placeholder.jpg'),
+                            'price' => $product->details->first()?->price,
+                            'discount' => $product->details->first()?->discount,
+                            'brand_name' => $product->vendor?->brand_name,
+                        ];
+                    });
             });
         } catch (Exception $e) {
             return response()->json(
@@ -125,7 +185,6 @@ class HomeController extends Controller
             );
         }
     }
-
     /*
     |==========================================
     |> Index: Combine all data for the main page

@@ -9,9 +9,10 @@ use App\Http\Controllers\Api\PromotionController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ReviewController;
-use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\Page\HomeController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\ProductDetailController;
+use App\Http\Controllers\Api\AdvertisementController;
 use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -107,7 +108,6 @@ Route::prefix('promotion')->as('promotion.')->group(function () {
         Route::put('/vendors/{vendor}/promotions/{promotion}/reject', [PromotionController::class, 'rejectSubscription'])->name('vendors.promotions.reject');
     });
 });
-
 /*
 |===================================================================
 |> Category Management Routes (Protected)
@@ -182,10 +182,19 @@ Route::prefix('product/{product}/reviews')->name('product.reviews.')->group(func
 
 /*
 |===================================================================
-|> Home Route
+|> Advertisement Management Routes (Protected)
 |===================================================================
 */
-Route::get('/home', [HomeController::class, 'index'])->name('home.index');
+Route::prefix('advertisement')->as('advertisement.')->group(function () {
+    Route::get('/', [AdvertisementController::class, 'index'])->name('index');
+    Route::get('/{advertisement}', [AdvertisementController::class, 'show'])->name('show');
+
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('/', [AdvertisementController::class, 'store'])->name('store');
+        Route::post('/{advertisement}', [AdvertisementController::class, 'update'])->name('update');
+        Route::delete('/{advertisement}', [AdvertisementController::class, 'destroy'])->name('destroy');
+    });
+});
 
 /*
 |===================================================================
@@ -200,4 +209,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 });
 
-require __DIR__ . '/test.php';
+require __DIR__ . '/server.php';
+require __DIR__ . '/app.php';

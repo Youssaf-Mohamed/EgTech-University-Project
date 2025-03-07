@@ -1,0 +1,71 @@
+{
+    "status": true,
+    "data": {
+        "most_demanded": [
+            {
+                "product_id": 44,
+                "product_name": "Product 44",
+                "product_image": "http://localhost:8000/storage/101/product-placeholder.jpg",
+                "vendor_image": "http://localhost:8000/storage/14/vendor-placeholder.jpg",
+                "price": "494.00",
+                "discount": "6.00",
+                "brand_name": "Vendor Two"
+            }
+        ],
+        "ads": [
+            {
+                "id": 44,
+                "title": "this is a title",
+                "created_at": "2023-02-20T06:47:23.000000Z",
+                "bg_image": "http://localhost:8000/storage/101/product-placeholder.jpg",
+                "secondry_text": "can be a content",
+                "brief": " brief",
+                "target_screen" : "home",
+                "redirect_to" : "product/44"
+            }
+        ],
+        "categories": [
+            {
+                "id": 1,
+                "category_name": "Electronics",
+                "description": "Devices and gadgets",
+                "category_image": "http://localhost:8000/storage/1/category-placeholder.jpg"
+            }
+        ],
+        "promoted_products": [
+            {
+                "product_id": 4,
+                "product_name": "Product 4",
+                "product_image": "http://localhost:8000/storage/4/product-placeholder.jpg",
+                "vendor_image": "http://localhost:8000/storage/4/product-placeholder.jpg",
+                "price": "346.00",
+                "discount": "20.00"
+            }
+        ],
+        "trending_categories": [
+            {
+                "category_id": 1,
+                "category_name": "Electronics",
+                "products": [
+                    {
+                        "product_id": 4,
+                        "product_name": "Product 4",
+                        "product_image": "http://localhost:8000/storage/4/product-placeholder.jpg",
+                        "price": "346.00",
+                        "discount": "20.00"
+                    }
+                ]
+            }
+        ],
+        "followed_products": [
+            {
+                "product_id": 4,
+                "product_name": "Product 4",
+                "product_image": "http://localhost:8000/storage/4/product-placeholder.jpg",
+                "vendor_image": "http://localhost:8000/storage/4/product-placeholder.jpg",
+                "price": "346.00",
+                "discount": "20.00"
+            }
+        ]
+    }
+}

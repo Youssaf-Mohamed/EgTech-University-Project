@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             ProductDetailSeeder::class,
             PromotionSeeder::class,
             ReviewSeeder::class,
+            AdvertisementSeeder::class,
         ]);
     }
 }

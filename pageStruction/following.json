@@ -1,0 +1,30 @@
+{
+    "status": true,
+    "data": {
+        "nav": {
+            "title": "Navigation",
+            "image": "https://example.com/image.jpg",
+        },
+        "vendors": [
+            {
+                "vendor_id": 1,
+                "brand_name": "Vendor 1",
+                "vendor_image": "https://example.com/logo1.jpg",
+            },
+            {
+                "vendor_id": 2,
+                "brand_name": "Vendor 2",
+                "vendor_image": "https://example.com/logo2.jpg",
+                }
+        ],
+        "products": [
+            {
+                "id": 1,
+                "category_name": "Electronics",
+                "description": "Devices and gadgets",
+                "category_image": "http://localhost:8000/storage/1/category-placeholder.jpg"
+            }
+        
+        ]
+    }
+}
