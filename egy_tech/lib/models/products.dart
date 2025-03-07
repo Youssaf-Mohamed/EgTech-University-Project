@@ -1,4 +1,6 @@
-class MostDemandedProduct {
+// ignore_for_file: unnecessary_cast
+
+class ProductList {
   final int productId;
   final String productName;
   final String productImage;
@@ -7,25 +9,25 @@ class MostDemandedProduct {
   final String discount;
   final String brandName;
 
-  MostDemandedProduct({
-    required this.productId,
-    required this.productName,
-    required this.productImage,
-    required this.vendorImage,
-    required this.price,
-    required this.discount,
-    required this.brandName,
+  ProductList({
+    this.productId= 0,
+    this.productName = '',
+    this.productImage = '',
+    this.vendorImage = '',
+    this.price = '',
+    this.discount = '',
+    this.brandName = '',
   });
 
-  factory MostDemandedProduct.fromJson(Map<String, dynamic> json) {
-    return MostDemandedProduct(
+  factory ProductList.fromJson(Map<String, dynamic> json) {
+    return ProductList(
       productId: json['product_id'] as int,
-      productName: json['product_name'] as String,
-      productImage: json['product_image'] as String,
-      vendorImage: json['vendor_image'] as String,
-      price: json['price'] as String,
-      discount: json['discount'] as String,
-      brandName: json['brand_name'] as String,
+      productName: json['product_name'].toString() as String,
+      productImage: json['product_image'].toString() as String,
+      vendorImage: json['vendor_image'].toString() as String,
+      price: json['price'].toString() as String,
+      discount: json['discount'].toString() as String,
+      brandName: json['brand_name'].toString() as String,
     );
   }
 }

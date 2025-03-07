@@ -12,51 +12,6 @@ import 'package:my_app/providers/home_data_provider.dart';
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
-  // Sample static category list.
-  // List<Map<String, String>> getCategory() {
-  //   return [
-  //     {"name": "Artisan", "image": "assets/images/main_testing/artist.png"},
-  //     {"name": "Designer", "image": "assets/images/main_testing/designer.png"},
-  //     {"name": "Crafts", "image": "assets/images/main_testing/crafts.png"},
-  //     {"name": "Products", "image": "assets/images/main_testing/products.png"},
-  //     {"name": "Workshop", "image": "assets/images/main_testing/workshop.png"},
-  //     {"name": "Events", "image": "assets/images/main_testing/events.png"},
-  //   ];
-  // }
-
-  // Sample static card list.
-  // List<Map<String, String>> getCardItem() {
-  //   return [
-  //     {
-  //       "product_name": "Khavda Pottery",
-  //       "product_image":
-  //           "https://th.bing.com/th/id/R.27cf23f37d3fe1fa0dd5db0da76126f9?rik=gzJrE3yP9ejKbw&pid=ImgRaw&r=0",
-  //       "vendor_image":
-  //           "https://i.ibb.co/B5qQFMzq/WIN-20250128-14-29-18-Pro.jpg",
-  //       "price": "346.00",
-  //       "discount": "20%"
-  //     },
-  //     {
-  //       "product_name": "Handmade Vase",
-  //       "product_image":
-  //           "https://th.bing.com/th/id/OIP.y92FBzeshMp7q1gs7wR4LwHaE7?rs=1&pid=ImgDetMain",
-  //       "vendor_image":
-  //           "https://i.ibb.co/B5qQFMzq/WIN-20250128-14-29-18-Pro.jpg",
-  //       "price": "400.00",
-  //       "discount": "10%"
-  //     },
-  //     {
-  //       "product_name": "Decor Pot",
-  //       "product_image":
-  //           "https://th.bing.com/th/id/OIP._LUrmB7Hnxk_hD6XYrL7ggHaIW?w=794&h=895&rs=1&pid=ImgDetMain",
-  //       "vendor_image":
-  //           "https://i.ibb.co/B5qQFMzq/WIN-20250128-14-29-18-Pro.jpg",
-  //       "price": "250.00",
-  //       "discount": "15%"
-  //     }
-  //   ];
-  // }
-
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
@@ -69,28 +24,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       body: homeDataAsync.when(
         data: (apiResponse) {
+          //  api getters
           final products = apiResponse.data.mostDemanded;
           final categories = apiResponse.data.categories;
+          final promotedProducts = apiResponse.data.promotedProducts;
+          final trendingCategories = apiResponse.data.trendingCategories;
 
-          final List<Map<String, String>> mappedCategories =
-              (categories as List<Category>)
-                  .map((Category cat) => <String, String>{
-                        "name": cat.name,
-                        "image": cat.image,
-                      })
-                  .toList();
+          // api mappers
+          final mappedCategories =
+              HomeDataMapper.mapCategories(categories as List<Category>);
+          final mappedProducts =
+              HomeDataMapper.mapProducts(products as List<ProductList>);
+          final mappedPromotedProducts = HomeDataMapper.mapPromotedProducts(
+              promotedProducts as List<ProductList>);
+          final mappedTrendingCategories = HomeDataMapper.mapTrendingCategories(
+              trendingCategories as List<Category>);
 
-          final List<Map<String, String>> mappedProducts =
-              (products as List<MostDemandedProduct>)
-                  .map((MostDemandedProduct prod) => <String, String>{
-                        "product_name": prod.productName,
-                        "product_image": prod.productImage,
-                        "vendor_image": prod.vendorImage,
-                        "price": prod.price,
-                        "discount": prod.discount,
-                      })
-                  .toList();
-
+          const CustomTextStyle = TextStyle(
+              color: Colors.black,
+              fontFamily: 'Satoshi',
+              fontSize: 19.2,
+              fontWeight: FontWeight.bold);
           return Container(
             color: Colors.white,
             child: Padding(
@@ -103,27 +57,79 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     const SizedBox(height: 20),
                     const AdBanner(),
                     const SizedBox(height: 20),
-                    const Text(
-                      "Featured",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Satoshi',
-                          fontSize: 19.2,
-                          fontWeight: FontWeight.bold),
-                    ),
+                    Text("Featured", style: CustomTextStyle),
                     const SizedBox(height: 15),
                     const Featured(),
                     const SizedBox(height: 20),
-                    const Text(
-                      "Trending Product",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Satoshi',
-                          fontSize: 19.2,
-                          fontWeight: FontWeight.bold),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Promoted products", style: CustomTextStyle),
+                        IconButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/notfound');
+                            },
+                            icon: Icon(
+                              size: 24,
+                              Icons.arrow_forward_rounded,
+                              color: Colors.black,
+                            ))
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    CardSlider(Cardlist: mappedPromotedProducts),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Trending Product", style: CustomTextStyle),
+                        IconButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/notfound');
+                            },
+                            icon: Icon(
+                              size: 24,
+                              Icons.arrow_forward_rounded,
+                              color: Colors.black,
+                            ))
+                      ],
                     ),
                     const SizedBox(height: 15),
                     CardSlider(Cardlist: mappedProducts),
+                    const SizedBox(height: 20),
+
+                    // categories loop
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: mappedTrendingCategories.map((category) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  category["name"],
+                                  style: CustomTextStyle,
+                                ),
+                                IconButton(
+                                    onPressed: () {
+                                      Navigator.pushNamed(context, '/notfound');
+                                    },
+                                    icon: Icon(
+                                      size: 24,
+                                      Icons.arrow_forward_rounded,
+                                      color: Colors.black,
+                                    ))
+                              ],
+                            ),
+                            const SizedBox(height: 15),
+                            CardSlider(Cardlist: category["products"]),
+                            const SizedBox(height: 20),
+                          ],
+                        );
+                      }).toList(),
+                    ),
                   ],
                 ),
               ),
@@ -211,5 +217,58 @@ class Featured extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class HomeDataMapper {
+  static List<Map<String, String>> mapCategories(List<Category> categories) {
+    return categories
+        .map((Category cat) => {
+              "name": cat.categoryName,
+              "image": cat.categoryImage,
+            })
+        .toList();
+  }
+
+  static List<Map<String, String>> mapProducts(List<ProductList> products) {
+    return products
+        .map((ProductList prod) => {
+              "product_name": prod.productName,
+              "product_image": prod.productImage,
+              "vendor_image": prod.vendorImage,
+              "price": prod.price,
+              "discount": prod.discount,
+            })
+        .toList();
+  }
+
+  static List<Map<String, String>> mapPromotedProducts(
+      List<ProductList> promotedProducts) {
+    return promotedProducts
+        .map((ProductList prod) => {
+              "product_name": prod.productName,
+              "product_image": prod.productImage,
+              "vendor_image": prod.vendorImage,
+              "price": prod.price,
+              "discount": prod.discount,
+            })
+        .toList();
+  }
+
+  static List<Map<String, dynamic>> mapTrendingCategories(
+      List<Category> trendingCategories) {
+    return trendingCategories
+        .map((Category cat) => {
+              "name": cat.categoryName,
+              "products": cat.products
+                  .map((ProductList prod) => {
+                        "product_name": prod.productName,
+                        "product_image": prod.productImage,
+                        "price": prod.price,
+                        "discount": prod.discount,
+                      })
+                  .toList(),
+            })
+        .toList();
   }
 }
