@@ -15,6 +15,7 @@ class ProductResource extends JsonResource
             'average_rating' => $this->average_rating,
             'details' => ProductDetailResource::collection($this->whenLoaded('details')),
             'vendor' => new VendorResource($this->whenLoaded('vendor')),
+            'region' => new RegionResource($this->whenLoaded('region')),
         ];
     }
 }

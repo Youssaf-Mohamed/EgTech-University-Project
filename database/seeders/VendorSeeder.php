@@ -46,7 +46,9 @@ class VendorSeeder extends Seeder
         foreach ($vendors as $vendorData) {
             $vendor = Vendor::create($vendorData);
 
-            $vendor->addMedia(public_path('images/vendor-placeholder.jpg'))
+            $randomImage = 'vendor(' . rand(1, 6) . ').jpg';
+
+            $vendor->addMedia(public_path("images/test/{$randomImage}"))
                 ->preservingOriginal()
                 ->toMediaCollection('vendor_images');
         }

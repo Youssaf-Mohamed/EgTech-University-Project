@@ -15,7 +15,7 @@ class ProductDetailSeeder extends Seeder
         $products = Product::pluck('id')->toArray();
 
         if (empty($products)) {
-            $this->command->info('you have no products yet');
+            $this->command->info('You have no products yet.');
             return;
         }
 
@@ -44,12 +44,14 @@ class ProductDetailSeeder extends Seeder
         foreach (ProductDetail::all() as $productDetail) {
             $imageCount = rand(1, 3);
             for ($j = 0; $j < $imageCount; $j++) {
-                $productDetail->addMedia(public_path('images/product-placeholder.jpg'))
+                $randomImage = 'product(' . rand(1, 6) . ').png';
+
+                $productDetail->addMedia(public_path("images/test/{$randomImage}"))
                     ->preservingOriginal()
                     ->toMediaCollection('product_images');
             }
         }
 
-        $this->command->info('Product details seeded successfully');
+        $this->command->info('Product details seeded successfully.');
     }
 }

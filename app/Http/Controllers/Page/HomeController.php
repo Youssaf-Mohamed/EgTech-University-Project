@@ -23,8 +23,7 @@ class HomeController extends Controller
                 'ads' => $this->getAds(),
                 'categories' => $this->getCategories(),
                 'promoted_products' => $this->getPromotedProducts(),
-                'trending_categories' => $this->getTrendingCategories(),
-                'followed_products' => $this->getFollowedProducts(),
+                'trending_categories' => $this->getTrendingCategories()
             ];
 
             return response()->json([
@@ -113,7 +112,7 @@ class HomeController extends Controller
         return Product::join('vendors', 'products.vendor_id', '=', 'vendors.id')
             ->join('vendor_promotion', 'vendors.id', '=', 'vendor_promotion.vendor_id')
             ->join('promotions', 'vendor_promotion.promotion_id', '=', 'promotions.id')
-            ->where('vendor_promotion.status', 'approved')
+            ->where('vendor_promotion.status', operator: 'approved')
             ->where('vendor_promotion.start_date', '<=', $currentDate)
             ->where('vendor_promotion.end_date', '>=', $currentDate)
             ->select('products.*', 'vendors.brand_name', 'vendors.id as vendor_id')
@@ -129,7 +128,7 @@ class HomeController extends Controller
                     'brand_name' => $product->vendor?->brand_name,
                     'price' => $detail?->price,
                     'discount' => $detail?->discount,
-                ];
+            ];
             });
     }
 
@@ -158,15 +157,23 @@ class HomeController extends Controller
             });
     }
 
-    private function getFollowedProducts()
+    public function getFollowedProducts()
     {
+        try {
+            if (!auth()->check()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated',
+                ], 401);
+            }
 
-        if (auth()->check()) {
             $user = Auth::user();
-
             $followedVendors = $user->followedVendors;
 
             $products = Product::whereIn('vendor_id', $followedVendors->pluck('id'))
+                ->with(['details' => function ($query) {
+                    $query->select('id', 'product_id', 'price', 'discount');
+                }, 'vendor:id,brand_name'])
                 ->take(7)
                 ->get()
                 ->map(function ($product) {
@@ -176,13 +183,21 @@ class HomeController extends Controller
                         'product_name' => $product->product_name,
                         'product_image' => $detail?->getImageUrl() ?? asset('images/product-placeholder.jpg'),
                         'vendor_image' => $product->vendor?->getImageUrl() ?? asset('images/vendor-placeholder.jpg'),
+                        'brand_name' => $product->vendor?->brand_name,
                         'price' => $detail?->price,
                         'discount' => $detail?->discount,
                     ];
                 });
 
-            return $products;
+            return response()->json([
+                'status' => true,
+                'data' => $products,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Internal Server Error: ' . $e->getMessage(),
+            ], 500);
         }
-        return ['message' => 'User not authenticated'];
     }
 }

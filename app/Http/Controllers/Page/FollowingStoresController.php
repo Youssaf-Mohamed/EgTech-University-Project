@@ -49,9 +49,16 @@ class FollowingStoresController extends Controller
                     'products' => $products->map(function ($product) {
                         return [
                             'id' => $product->id,
-                            'category_name' => optional($product->categories)->first()?->category_name ?? 'N/A',
-                            'description' => $product->description,
-                            'category_image' => optional($product->categories)->first()?->getImageUrl() ?? asset('images/category-placeholder.jpg'),
+                            'product_name' => $product->product_name,
+                            'product_image' => $product->getImageUrl(),
+                            'price' => optional($product->details->first())?->price ?? 0,
+                            'discount' => optional($product->details->first())?->discount ?? 0,
+                            'vendor_name' => optional($product->vendor)->brand_name ?? 'N/A',
+                            'vendor_image' => optional($product->vendor)->getImageUrl() ?? asset('images/vendor-placeholder.jpg'),
+                            'rating' => Cache::remember('product-rating-' . $product->id, now()->addMinutes(10), function () use ($product) {
+                                return $product->reviews->avg('rating') ?? 0;
+                            }),
+                            // 'region_name' => $product->vendor?->regions->pluck('name')->first() ?? 'N/A',
                         ];
                     }),
                 ],

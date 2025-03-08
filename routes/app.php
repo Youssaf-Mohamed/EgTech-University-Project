@@ -16,3 +16,4 @@ use App\Http\Controllers\Page\HomeController;
 Route::get('/following', [FollowingStoresController::class, 'index'])->name('following.index')->middleware('auth:sanctum');
 
 Route::get('/home', [HomeController::class, 'index'])->name('home.index');
+Route::get('/home/following', [HomeController::class, 'getFollowedProducts'])->name('home.following')->middleware('auth:sanctum');

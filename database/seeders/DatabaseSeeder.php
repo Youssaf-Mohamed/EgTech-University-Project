@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             PromotionSeeder::class,
             ReviewSeeder::class,
             AdvertisementSeeder::class,
+            FollowsSeeder::class,
+            RegionVendorSeeder::class,
         ]);
     }
 }

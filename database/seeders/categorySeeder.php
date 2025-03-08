@@ -29,7 +29,9 @@ class CategorySeeder extends Seeder
         foreach ($categories as $categoryData) {
             $category = Category::create($categoryData);
 
-            $category->addMedia(public_path('images/category-placeholder.png'))
+            $randomImage = 'category(' . rand(1, 5) . ').png';
+
+            $category->addMedia(public_path("images/test/{$randomImage}"))
                 ->preservingOriginal()
                 ->toMediaCollection('category_images');
         }
