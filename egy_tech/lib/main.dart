@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/main_screen.dart';
+import 'package:my_app/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:my_app/screens/home.dart';
 import 'package:my_app/screens/login_screen.dart';
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/signup': (context) => RegisterScreen(),
         '/': (context) => MainScreen(),
+        '/home': (context) => HomeScreen(),
         '/myprofile': (context) => MyProfile(),
         '/mycollection': (context) => MyCollection(),
         '/collaborate': (context) => CollaborateScreen(),
@@ -55,3 +57,13 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+/* 
+in order to navigate between pages insed the mainscreen for appbar display and bottom nav
+use this example cmd
+Navigator.push(
+  context,
+  MaterialPageRoute(builder: (context) => MainScreen(index: 2)), //the index is the number of our page builder in the main_screen.dart
+);
+
+*/

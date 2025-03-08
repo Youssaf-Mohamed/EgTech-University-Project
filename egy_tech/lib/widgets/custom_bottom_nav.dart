@@ -13,32 +13,23 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> items = List.generate(4, (index) {
-      return MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () => onItemTapped(index),
-          child: Icon(
-            [Icons.home, Icons.grid_view, Icons.groups, Icons.person][index],
-            color: Colors.white,
-          ),
-        ),
-      );
-    });
-
-    final int safeIndex = (selectedIndex >= 0 && selectedIndex < items.length)
-        ? selectedIndex
-        : 0;
+    final List<IconData> icons = [
+      Icons.home,
+      Icons.grid_view,
+      Icons.groups,
+      Icons.person,
+      Icons.settings, // Added fifth icon
+    ];
 
     return CurvedNavigationBar(
       animationCurve: Curves.easeInOut,
       animationDuration: const Duration(milliseconds: 400),
       height: 55,
-      index: safeIndex,
+      index: selectedIndex.clamp(0, icons.length - 1),
       onTap: onItemTapped,
       backgroundColor: Colors.white,
       color: Colors.red[700]!,
-      items: items,
+      items: icons.map((icon) => Icon(icon, color: Colors.white, size: 30)).toList(),
     );
   }
 }

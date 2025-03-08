@@ -47,9 +47,13 @@ class CustomListView extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    data["name"]!,
+                    data["name"]!.length > 18
+                        ? "${data["name"]!.substring(0, 18)}..." 
+                        : data["name"]!,
                     style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w500),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],

@@ -71,7 +71,7 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                   : Container(
                       color: Colors.white,
                       child: Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(12),
                         child: Column(
                           children: [
                             Column(

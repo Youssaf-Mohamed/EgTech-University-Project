@@ -47,91 +47,88 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               fontWeight: FontWeight.bold);
           return Container(
             color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomListView(list: mappedCategories),
-                    const SizedBox(height: 20),
-                    const AdBanner(),
-                    const SizedBox(height: 20),
-                    Text("Featured", style: CustomTextStyle),
-                    const SizedBox(height: 15),
-                    const Featured(),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Promoted products", style: CustomTextStyle),
-                        IconButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/notfound');
-                            },
-                            icon: Icon(
-                              size: 24,
-                              Icons.arrow_forward_rounded,
-                              color: Colors.black,
-                            ))
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    CardSlider(Cardlist: mappedPromotedProducts),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Trending Product", style: CustomTextStyle),
-                        IconButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/notfound');
-                            },
-                            icon: Icon(
-                              size: 24,
-                              Icons.arrow_forward_rounded,
-                              color: Colors.black,
-                            ))
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    CardSlider(Cardlist: mappedProducts),
-                    const SizedBox(height: 20),
-
-                    // categories loop
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: mappedTrendingCategories.map((category) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  category["name"],
-                                  style: CustomTextStyle,
-                                ),
-                                IconButton(
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, '/notfound');
-                                    },
-                                    icon: Icon(
-                                      size: 24,
-                                      Icons.arrow_forward_rounded,
-                                      color: Colors.black,
-                                    ))
-                              ],
-                            ),
-                            const SizedBox(height: 15),
-                            CardSlider(Cardlist: category["products"]),
-                            const SizedBox(height: 20),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomListView(list: mappedCategories),
+                  const SizedBox(height: 20),
+                  const AdBanner(),
+                  const SizedBox(height: 20),
+                  Text("Featured", style: CustomTextStyle),
+                  const SizedBox(height: 15),
+                  const Featured(),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Promoted products", style: CustomTextStyle),
+                      IconButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/notfound');
+                          },
+                          icon: Icon(
+                            size: 24,
+                            Icons.arrow_forward_rounded,
+                            color: Colors.black,
+                          ))
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  CardSlider(Cardlist: mappedPromotedProducts),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Trending Product", style: CustomTextStyle),
+                      IconButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/notfound');
+                          },
+                          icon: Icon(
+                            size: 24,
+                            Icons.arrow_forward_rounded,
+                            color: Colors.black,
+                          ))
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  CardSlider(Cardlist: mappedProducts),
+                  const SizedBox(height: 20),
+            
+                  // categories loop
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: mappedTrendingCategories.map((category) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                category["name"],
+                                style: CustomTextStyle,
+                              ),
+                              IconButton(
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, '/notfound');
+                                  },
+                                  icon: Icon(
+                                    size: 24,
+                                    Icons.arrow_forward_rounded,
+                                    color: Colors.black,
+                                  ))
+                            ],
+                          ),
+                          const SizedBox(height: 15),
+                          CardSlider(Cardlist: category["products"]),
+                          const SizedBox(height: 20),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
             ),
           );
