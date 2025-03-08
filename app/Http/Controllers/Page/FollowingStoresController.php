@@ -27,6 +27,7 @@ class FollowingStoresController extends Controller
             $followedVendors = $user->followedVendors;
 
             $products = Product::whereIn('vendor_id', $followedVendors->pluck('id'))
+                ->with(['details', 'vendor'])
                 ->inRandomOrder()
                 ->orderByDesc('created_at')
                 ->take(20)
@@ -47,14 +48,15 @@ class FollowingStoresController extends Controller
                         ];
                     }),
                     'products' => $products->map(function ($product) {
+                        $detail = $product->details->first();
                         return [
                             'id' => $product->id,
                             'product_name' => $product->product_name,
-                            'product_image' => $product->getImageUrl(),
-                            'price' => optional($product->details->first())?->price ?? 0,
-                            'discount' => optional($product->details->first())?->discount ?? 0,
+                            'price' => $detail?->price ?? 0,
+                            'discount' => $detail?->discount ?? 0,
                             'vendor_name' => optional($product->vendor)->brand_name ?? 'N/A',
                             'vendor_image' => optional($product->vendor)->getImageUrl() ?? asset('images/vendor-placeholder.jpg'),
+                            'product_image' => $detail?->getImageUrl() ?? asset('images/product-placeholder.jpg'),
                             'rating' => Cache::remember('product-rating-' . $product->id, now()->addMinutes(10), function () use ($product) {
                                 return $product->reviews->avg('rating') ?? 0;
                             }),
