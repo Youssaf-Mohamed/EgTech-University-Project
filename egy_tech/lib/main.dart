@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/main_screen.dart';
 import 'package:my_app/screens/home.dart';
+import 'package:my_app/screens/profileSettings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:my_app/screens/home.dart';
 import 'package:my_app/screens/login_screen.dart';
@@ -15,13 +16,15 @@ import 'package:my_app/screens/404.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Retrieve walkthrough status from SharedPreferences
   final prefs = await SharedPreferences.getInstance();
-  final bool walkthroughCompleted = prefs.getBool('walkthroughCompleted') ?? false;
+  final bool walkthroughCompleted =
+      prefs.getBool('walkthroughCompleted') ?? false;
 
   runApp(
-    ProviderScope( // Wrap in ProviderScope for Riverpod
+    ProviderScope(
+      // Wrap in ProviderScope for Riverpod
       child: MyApp(walkthroughCompleted: walkthroughCompleted),
     ),
   );
@@ -30,7 +33,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   final bool walkthroughCompleted;
   const MyApp({Key? key, required this.walkthroughCompleted}) : super(key: key);
-  
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -45,11 +48,14 @@ class MyApp extends StatelessWidget {
         '/walkthrough': (context) => const Walkthrough(),
         '/login': (context) => LoginScreen(),
         '/signup': (context) => RegisterScreen(),
-        '/': (context) => MainScreen(),
+        '/': (context) => MainScreen(
+              index: 0,
+            ),
         '/home': (context) => HomeScreen(),
         '/myprofile': (context) => MyProfile(),
         '/mycollection': (context) => MyCollection(),
         '/collaborate': (context) => CollaborateScreen(),
+        '/profile_settings': (context) => ProfileSettings(),
       },
       onUnknownRoute: (settings) => MaterialPageRoute(
         builder: (context) => NotFoundPage(),

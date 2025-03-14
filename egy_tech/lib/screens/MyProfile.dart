@@ -1,10 +1,11 @@
 // lib/screens/MyProfile.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/main_screen.dart';
 import 'package:my_app/models/User.dart';
 import 'package:my_app/services/AuthService.dart';
 import 'package:my_app/widgets/profile_option_tile.dart';
-import 'package:my_app/providers/providers.dart'; 
+import 'package:my_app/providers/providers.dart';
 
 class MyProfile extends ConsumerStatefulWidget {
   const MyProfile({Key? key}) : super(key: key);
@@ -65,7 +66,7 @@ class _MyProfileState extends ConsumerState<MyProfile> {
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? NotLoggedIn()
+              ? const NotLoggedIn()
               : _user == null
                   ? const Center(child: Text('No user data found'))
                   : Container(
@@ -167,8 +168,12 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                                           "Browse through interesting Artisan & Designer Profiles",
                                       icon: Icons.person_add_alt,
                                       onTap: () {
-                                        Navigator.pushNamed(
-                                            context, "/following");
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  MainScreen(index: 5)),
+                                        );
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -207,6 +212,16 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                                       icon: Icons.help_outline,
                                       onTap: () {
                                         Navigator.pushNamed(context, "/help");
+                                      },
+                                    ),
+                                    ProfileOptionTile(
+                                      title: "Profile Settings",
+                                      subtitle:
+                                          "Edit / Update your profile details and more",
+                                      icon: Icons.settings,
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                            context, "/profile_settings");
                                       },
                                     ),
                                     ProfileOptionTile(
@@ -291,7 +306,7 @@ class NotLoggedIn extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Row(

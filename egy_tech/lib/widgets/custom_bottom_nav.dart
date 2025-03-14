@@ -16,9 +16,9 @@ class CustomBottomNavBar extends StatelessWidget {
     final List<IconData> icons = [
       Icons.home,
       Icons.grid_view,
+      Icons.wallet,
       Icons.groups,
       Icons.person,
-      Icons.settings, // Added fifth icon
     ];
 
     return CurvedNavigationBar(
